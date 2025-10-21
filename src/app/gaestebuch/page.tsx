@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import GuestbookForm from './ui/GuestbookForm'
-import GuestbookList from './ui/GuestbookList'
+import GuestbookForm from './ui/GuestBookForm'
+import GuestbookList from './ui/GuestBookList'
 
 export const metadata: Metadata = {
   title: 'Gästebuch',

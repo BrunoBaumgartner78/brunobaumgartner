@@ -1,81 +1,81 @@
-'use client'
+"use client"
+import { useState } from "react"
 
-import { useState } from 'react'
+export default function GuestbookForm({ onCreated }: { onCreated?: () => void }) {
+  const [name, setName] = useState("")
+  const [message, setMessage] = useState("")
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [ok, setOk] = useState(false)
 
-export default function GuestbookForm() {
-  const [name, setName] = useState('')
-  const [message, setMessage] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [err, setErr] = useState<string | null>(null)
-
-  async function onSubmit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault()
-    setBusy(true)
-    setErr(null)
+    setError(null)
+    setOk(false)
+
+    const n = name.trim()
+    const m = message.trim()
+    if (!n || !m) {
+      setError("Bitte Name und Nachricht eingeben.")
+      return
+    }
+
+    setPending(true)
     try {
-      const res = await fetch('/api/guestbook', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ name, message }),
+      const res = await fetch("/api/guestbook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: n, message: m }),
       })
-      const data = await res.json()
-      if (!res.ok || !data?.ok) throw new Error(data?.error || 'Fehler')
-      setMessage('')
-      // Event, damit die Liste refresht
-      window.dispatchEvent(new CustomEvent('guestbook:posted'))
-    } catch (e: any) {
-      setErr(e?.message ?? 'Fehler beim Senden')
+      if (!res.ok) throw new Error(await res.text())
+      setOk(true)
+      setMessage("")
+      onCreated?.()
+      // Liste auffrischen (event-basiert)
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("guestbook:new"))
+      }
+    } catch {
+      setError("Speichern fehlgeschlagen.")
     } finally {
-      setBusy(false)
+      setPending(false)
     }
   }
 
   return (
-    <form onSubmit={onSubmit} className="card" style={{
-      border: '1px solid var(--color-border, #e5e7eb)',
-      borderRadius: 12, padding: 16, display: 'grid', gap: 12, maxWidth: 720,
-      background: 'var(--card-bg, #fff)'
-    }}>
-      <div style={{ display: 'grid', gap: 6 }}>
-        <label htmlFor="gb_name" style={{ fontSize: 13, opacity: 0.8 }}>Name</label>
+    <form onSubmit={submit} className="grid gap-3" aria-label="Gästebuch Formular">
+      <label className="grid gap-1">
+        <span>Name</span>
         <input
-          id="gb_name"
           value={name}
-          onChange={e => setName(e.target.value)}
-          maxLength={80}
+          onChange={(e) => setName(e.target.value)}
           required
-          placeholder="Dein Name"
-          style={{ padding: '10px 12px', borderRadius: 8, border: '1px solid var(--color-border,#e5e7eb)' }}
+          className="border rounded px-3 py-2"
         />
-      </div>
+      </label>
 
-      <div style={{ display: 'grid', gap: 6 }}>
-        <label htmlFor="gb_msg" style={{ fontSize: 13, opacity: 0.8 }}>Nachricht</label>
+      <label className="grid gap-1">
+        <span>Nachricht</span>
         <textarea
-          id="gb_msg"
           value={message}
-          onChange={e => setMessage(e.target.value)}
-          maxLength={1000}
-          required
+          onChange={(e) => setMessage(e.target.value)}
           rows={4}
-          placeholder="Kurze Nachricht …"
-          style={{ padding: '10px 12px', borderRadius: 8, border: '1px solid var(--color-border,#e5e7eb)' }}
+          required
+          maxLength={500}
+          className="border rounded px-3 py-2"
         />
-      </div>
+        <small className="opacity-60">{message.length}/500</small>
+      </label>
 
-      {err && <p style={{ color: 'crimson', margin: 0 }}>{err}</p>}
-
-      <div>
+      <div className="flex items-center gap-3">
         <button
-          type="submit"
-          disabled={busy}
-          style={{
-            borderRadius: 10, padding: '10px 14px', border: '1px solid #000',
-            background: '#000', color: '#fff', cursor: 'pointer', opacity: busy ? 0.7 : 1
-          }}
+          disabled={pending}
+          className="border rounded px-4 py-2 bg-black text-white disabled:opacity-50"
         >
-          {busy ? 'Senden …' : 'Eintragen'}
+          {pending ? "Senden…" : "Eintragen"}
         </button>
+        {ok && <span className="text-green-600">Danke! Eintrag gespeichert.</span>}
+        {error && <span className="text-red-600">{error}</span>}
       </div>
     </form>
   )

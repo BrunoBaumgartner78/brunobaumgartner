@@ -1,69 +1,76 @@
-'use client'
+"use client"
+import { useEffect, useState } from "react"
 
-import { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
-import DeleteButton from './DeleteButton'
-
-type Entry = {
-  id: string
-  name: string
-  message: string
-  ts: number
-}
+type Entry = { id: string; name: string; message: string; createdAt: number }
 
 export default function GuestbookList() {
-  const [entries, setEntries] = useState<Entry[]>([])
+  const [items, setItems] = useState<Entry[]>([])
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
-  const sp = useSearchParams()
-  const isAdmin = useMemo(() => sp.get('admin') === '1', [sp])
+  const [error, setError] = useState<string | null>(null)
+  const [offset, setOffset] = useState(0)
+  const limit = 10
 
-  const load = async () => {
+  async function load(reset = false) {
     setLoading(true)
-    const res = await fetch('/api/guestbook?offset=0&limit=10', { cache: 'no-store' })
-    const data = await res.json()
-    setEntries(data.items || [])
-    setLoading(false)
+    setError(null)
+    try {
+      const res = await fetch(`/api/guestbook?offset=${reset ? 0 : offset}&limit=${limit}`, {
+        cache: "no-store",
+      })
+      if (!res.ok) throw new Error(await res.text())
+      const data = (await res.json()) as { items: Entry[]; total: number }
+
+      if (reset) {
+        setItems(data.items || [])
+        setOffset((data.items || []).length)
+      } else {
+        setItems((prev) => [...prev, ...(data.items || [])])
+        setOffset((prev) => prev + (data.items?.length || 0))
+      }
+      setTotal(data.total || 0)
+    } catch {
+      setError("Konnte Einträge nicht laden.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
-    load()
+    load(true)
   }, [])
 
-  if (loading) return <p>Lade…</p>
+  useEffect(() => {
+    const handler = () => load(true)
+    window.addEventListener("guestbook:new", handler)
+    return () => window.removeEventListener("guestbook:new", handler)
+  }, [])
+
+  const hasMore = offset < total
 
   return (
-    <ul style={{ listStyle: 'none', padding: 0 }}>
-      {entries.map((e) => (
-        <li
-          key={e.id}
-          style={{
-            border: '1px solid var(--color-border, #e5e7eb)',
-            borderRadius: 10,
-            padding: '0.75rem 0.9rem',
-            marginBottom: '0.7rem',
-            background: 'var(--color-card, transparent)',
-            display: 'grid',
-            gridTemplateColumns: isAdmin ? '1fr auto' : '1fr',
-            gap: '0.6rem',
-            alignItems: 'center',
-          }}
-        >
-          <div>
-            <div style={{ fontWeight: 600 }}>{e.name}</div>
-            <div style={{ whiteSpace: 'pre-wrap' }}>{e.message}</div>
-          </div>
+    <section className="grid gap-3">
+      {items.length === 0 && !loading && <p>Keine Einträge vorhanden.</p>}
 
-          {isAdmin && (
-            <DeleteButton
-              id={e.id}
-              onDeleted={() => {
-                // lokal entfernen ohne kompletten Reload
-                setEntries((prev) => prev.filter((x) => x.id !== e.id))
-              }}
-            />
-          )}
-        </li>
+      {items.map((it) => (
+        <article key={it.id} className="border rounded-lg p-3">
+          <div className="text-sm opacity-70">
+            {new Date(it.createdAt).toLocaleString("de-CH")}
+          </div>
+          <h3 className="m-0">{it.name}</h3>
+          <p style={{ whiteSpace: "pre-wrap" }}>{it.message}</p>
+        </article>
       ))}
-    </ul>
+
+      {error && <p className="text-red-600">{error}</p>}
+
+      <div className="flex items-center justify-center">
+        {hasMore && (
+          <button onClick={() => load(false)} disabled={loading} className="border rounded px-4 py-2">
+            {loading ? "Laden…" : "Mehr laden"}
+          </button>
+        )}
+      </div>
+    </section>
   )
 }
