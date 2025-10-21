@@ -2,6 +2,7 @@
 import { redis } from '@/lib/redis'
 import s from './MetricsWidget.module.css'
 
+
 function ym(d = new Date()) {
   const y = d.getUTCFullYear()
   const m = String(d.getUTCMonth() + 1).padStart(2, '0')

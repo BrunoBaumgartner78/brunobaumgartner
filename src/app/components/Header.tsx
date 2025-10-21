@@ -53,7 +53,7 @@ export default function Header() {
             </li>
             <li>
   <Link className="underline hover:no-underline" href="/gaestebuch">
-    Gästebuch
+    Gäste
   </Link>
 </li>
 
