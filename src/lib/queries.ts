@@ -1,109 +1,173 @@
 ﻿// src/lib/queries.ts
-import groq from 'groq'
-import { sanityClient } from './sanity.client'
+import sanityClient from '@/lib/sanity.client'
 
-/* ----------------------------- Typdefinitionen ----------------------------- */
+// ---------- Blog ----------
 
-export type Post = {
-  _id: string
-  title: string
-  slug: string
-  excerpt?: string
-  mainImage?: any
-  body?: any
-  publishedAt?: string
+/** Neueste Blogposts (für Startseite / Übersichtsseiten) */
+export async function getRecentPosts(limit = 5) {
+  const query = `
+    *[_type == "post"] | order(publishedAt desc)[0...$limit]{
+      _id,
+      title,
+      "slug": slug.current,
+      excerpt,
+      mainImage,
+      publishedAt,
+      _updatedAt
+    }
+  `
+  return sanityClient.fetch(query, { limit })
 }
 
-export type GalleryItem = {
-  _id: string
-  title?: string
-  slug?: string
-  image?: any
-  caption?: string
-  publishedAt?: string
+/** Alle Posts (für Feed/Sitemap o.ä.) */
+export async function getAllPosts() {
+  const query = `
+    *[_type == "post"] | order(publishedAt desc){
+      _id,
+      title,
+      "slug": slug.current,
+      excerpt,
+      mainImage,
+      publishedAt,
+      _updatedAt
+    }
+  `
+  return sanityClient.fetch(query)
 }
 
-export type Book = {
-  _id: string
-  title: string
-  slug: string
-  cover?: any
-  description?: string
-  publishedAt?: string
-  isbn?: string
-  buyUrl?: string
+/** Einzelner Post per Slug (für /blog/[slug]) */
+export async function getPost(slug: string) {
+  const query = `
+    *[_type == "post" && slug.current == $slug][0]{
+      _id,
+      title,
+      "slug": slug.current,
+      excerpt,
+      mainImage,
+      body,
+      publishedAt,
+      _updatedAt
+    }
+  `
+  return sanityClient.fetch(query, { slug })
 }
 
-/* --------------------------------- BLOG ---------------------------------- */
-
-export async function getRecentPosts(limit = 5): Promise<Post[]> {
-  const q = groq`*[_type == "post" && defined(slug.current)]
-    | order(coalesce(publishedAt, _createdAt) desc)[0...$limit]{
-      _id, title, "slug": slug.current, excerpt, mainImage, body, publishedAt
-    }`
-  return sanityClient.fetch(q, { limit }, { next: { revalidate: 600, tags: ['posts'] } })
+/** Nur Slugs aller Posts (für generateStaticParams) */
+export async function getPostSlugs() {
+  const query = `*[_type == "post" && defined(slug.current)]{ "slug": slug.current }`
+  return sanityClient.fetch<{ slug: string }[]>(query)
 }
 
-export async function getAllPosts(): Promise<Post[]> {
-  const q = groq`*[_type == "post" && defined(slug.current)]
-    | order(coalesce(publishedAt, _createdAt) desc){
-      _id, title, "slug": slug.current, excerpt, mainImage, body, publishedAt
-    }`
-  return sanityClient.fetch(q, {}, { next: { revalidate: 600, tags: ['posts'] } })
+// ---------- Bücher ----------
+
+/** Bücherliste (limitierbar – für Startseite/Übersicht) */
+export async function getBooks(limit = 12) {
+  const query = `
+    *[_type == "book"] | order(coalesce(year, _updatedAt) desc)[0...$limit]{
+      _id,
+      title,
+      subtitle,
+      "slug": slug.current,
+      year,
+      cover,            // erwartet: {asset, alt?}
+      tags,
+      _updatedAt
+    }
+  `
+  return sanityClient.fetch(query, { limit })
 }
 
-export async function getPostBySlug(slug: string): Promise<Post | null> {
-  const q = groq`*[_type == "post" && slug.current == $slug][0]{
-    _id, title, "slug": slug.current, excerpt, mainImage{..., asset->}, body, publishedAt
-  }`
-  return sanityClient.fetch(q, { slug }, { next: { revalidate: 600, tags: ['posts'] } })
+/** Ein Buch per Slug (Detailseite /buecher/[slug]) */
+export async function getBook(slug: string) {
+  const query = `
+    *[_type == "book" && slug.current == $slug][0]{
+      _id,
+      title,
+      subtitle,
+      "slug": slug.current,
+      year,
+      pages,
+      isbn,
+      language,
+      publisher,
+      description,       // kurze Beschreibung
+      longDescription,   // ausführlich (Portable Text)
+      buyLinks[]{label, url},
+      tags,
+      cover,
+      _updatedAt
+    }
+  `
+  return sanityClient.fetch(query, { slug })
 }
 
-/* -------------------------------- GALERIE -------------------------------- */
-
-export async function getGallery(limit = 6): Promise<GalleryItem[]> {
-  const q = groq`*[_type == "galleryImage"]
-    | order(coalesce(publishedAt, _createdAt) desc)[0...$limit]{
-      _id, title, "slug": slug.current, image{..., asset->}, caption, publishedAt
-    }`
-  return sanityClient.fetch(q, { limit }, { next: { revalidate: 600, tags: ['gallery'] } })
+/** Alle Bücher (für Sitemap/Feed) */
+export async function getAllBooks() {
+  const query = `
+    *[_type == "book"] | order(coalesce(year, _updatedAt) desc){
+      _id,
+      title,
+      "slug": slug.current,
+      year,
+      _updatedAt
+    }
+  `
+  return sanityClient.fetch(query)
 }
 
-// NEU: Einzelnes Galerie-Item per Slug
-export async function getGalleryItem(slug: string): Promise<GalleryItem | null> {
-  const q = groq`*[_type == "galleryImage" && slug.current == $slug][0]{
-    _id, title, "slug": slug.current, image{..., asset->}, caption, publishedAt
-  }`
-  return sanityClient.fetch(q, { slug }, { next: { revalidate: 600, tags: ['gallery'] } })
+/** Nur Slugs aller Bücher (für generateStaticParams) */
+export async function getBookSlugs() {
+  const query = `*[_type == "book" && defined(slug.current)]{ "slug": slug.current }`
+  return sanityClient.fetch<{ slug: string }[]>(query)
 }
 
-// NEU: Nur Slugs (für generateStaticParams)
-export async function getGallerySlugs(): Promise<string[]> {
-  const q = groq`*[_type == "galleryImage" && defined(slug.current)][].slug.current`
-  return sanityClient.fetch(q, {}, { next: { revalidate: 600, tags: ['gallery'] } })
+// ---------- Galerie ----------
+
+/** Galerie-Items (für Übersichtsseite) */
+export async function getGallery(limit = 24) {
+  const query = `
+    *[_type == "galleryImage"] | order(_createdAt desc)[0...$limit]{
+      _id,
+      title,
+      "slug": slug.current,
+      image,
+      alt,
+      _updatedAt
+    }
+  `
+  return sanityClient.fetch(query, { limit })
 }
 
-/* --------------------------------- BÜCHER -------------------------------- */
-
-export async function getBooks(limit = 5): Promise<Book[]> {
-  const q = groq`*[_type == "book" && defined(slug.current)]
-    | order(coalesce(publishedAt, _createdAt) desc)[0...$limit]{
-      _id, title, "slug": slug.current, cover{..., asset->}, description, publishedAt, isbn, buyUrl
-    }`
-  return sanityClient.fetch(q, { limit }, { next: { revalidate: 600, tags: ['books'] } })
+/** Einzelnes Galerie-Item per Slug */
+export async function getGalleryItem(slug: string) {
+  const query = `
+    *[_type == "galleryImage" && slug.current == $slug][0]{
+      _id,
+      title,
+      "slug": slug.current,
+      image,
+      alt,
+      caption,
+      body,        // falls es Portable Text gibt
+      _updatedAt
+    }
+  `
+  return sanityClient.fetch(query, { slug })
 }
 
-export async function getAllBooks(): Promise<Book[]> {
-  const q = groq`*[_type == "book" && defined(slug.current)]
-    | order(coalesce(publishedAt, _createdAt) desc){
-      _id, title, "slug": slug.current, cover{..., asset->}, description, publishedAt, isbn, buyUrl
-    }`
-  return sanityClient.fetch(q, {}, { next: { revalidate: 600, tags: ['books'] } })
+/** Nur Slugs aller Galerie-Items (für generateStaticParams) */
+export async function getGallerySlugs() {
+  const query = `*[_type == "galleryImage" && defined(slug.current)]{ "slug": slug.current }`
+  return sanityClient.fetch<{ slug: string }[]>(query)
 }
 
-export async function getBookBySlug(slug: string): Promise<Book | null> {
-  const q = groq`*[_type == "book" && slug.current == $slug][0]{
-    _id, title, "slug": slug.current, cover{..., asset->}, description, publishedAt, isbn, buyUrl
-  }`
-  return sanityClient.fetch(q, { slug }, { next: { revalidate: 600, tags: ['books'] } })
+// ---------- Hilfen für Sitemap/Feeds ----------
+
+/**
+ * Einfache Hilfsfunktion, um eine ISO-Lastmod zu liefern.
+ * (Viele deiner Routen nutzen publishedAt/_updatedAt.)
+ */
+export function pickLastmod(input: { publishedAt?: string; _updatedAt?: string }) {
+  const date = input.publishedAt || input._updatedAt
+  return date ? new Date(date).toISOString() : undefined
 }
