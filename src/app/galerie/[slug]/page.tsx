@@ -1,68 +1,104 @@
-// src/app/galerie/[slug]/page.tsx
+// src/app/blog/[slug]/page.tsx
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
-
-// Verwende RELATIVE Importe, um Alias-Probleme zu vermeiden:
-import { getGalleryItem, getGallerySlugs } from '../../../lib/queries'
-import { urlFor } from '../../../lib/sanity.image'
+import { Portable } from '@/app/components/Portable'
+import { getPostBySlug, getAllPosts } from '@/lib/queries'
+import { urlFor } from '@/lib/sanity.image'
 
 export const revalidate = 300
 
-export async function generateStaticParams() {
-  const slugs = await getGallerySlugs()
-  return slugs.map((slug) => ({ slug }))
+// Next 15: params/searchParams sind Promises
+type Props = {
+  params: Promise<{ slug: string }>
 }
 
-export async function generateMetadata(
-  { params }: { params: { slug: string } }
-): Promise<Metadata> {
-  const item = await getGalleryItem(params.slug)
-  if (!item) return { title: 'Bild nicht gefunden' }
+// Static params für SSG
+export async function generateStaticParams() {
+  const posts = await getAllPosts()
+  return posts.map(p => ({ slug: p.slug }))
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const post = await getPostBySlug(slug)
+  if (!post) return { title: 'Beitrag nicht gefunden' }
 
   const site = process.env.NEXT_PUBLIC_SITE_URL || 'https://brainbloom.ch'
-  const og = item.image ? urlFor(item.image).width(1200).height(630).fit('crop').url() : '/og.png'
+  const ogImg =
+    post.mainImage
+      ? urlFor(post.mainImage).width(1200).height(630).fit('crop').url()
+      : `${site}/og.png`
 
   return {
-    title: item.title || 'Galerie',
-    description: item.caption || 'Bild aus der Galerie',
-    alternates: { canonical: `/galerie/${params.slug}` },
+    title: post.title,
+    description: post.excerpt || '',
+    alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       type: 'article',
-      url: `${site}/galerie/${params.slug}`,
-      title: item.title || 'Galerie',
-      description: item.caption || 'Bild aus der Galerie',
-      images: [og],
+      url: `/blog/${post.slug}`,
+      title: post.title,
+      description: post.excerpt || '',
+      images: [ogImg],
     },
+    twitter: { card: 'summary_large_image', images: [ogImg] },
   }
 }
 
-export default async function GalerieItemPage({ params }: { params: { slug: string } }) {
-  const item = await getGalleryItem(params.slug)
-  if (!item) return notFound()
+export default async function BlogPostPage({ params }: Props) {
+  const { slug } = await params
+  const post = await getPostBySlug(slug)
+
+  if (!post) return notFound()
+
+  const site = process.env.NEXT_PUBLIC_SITE_URL || 'https://brainbloom.ch'
+  const cover =
+    post.mainImage
+      ? urlFor(post.mainImage).width(1200).height(630).fit('crop').url()
+      : null
 
   return (
-    <article className="grid gap-4" aria-labelledby="t">
-      <nav aria-label="Brotkrumen" className="text-sm opacity-80">
-        <Link className="underline" href="/galerie">Galerie</Link> /{' '}
-        <span>{item.title || 'Bild'}</span>
-      </nav>
+    <article className="wrap grid gap-6" aria-labelledby="t">
+      <header>
+        <h1 id="t" className="h1" style={{ marginBottom: 6 }}>{post.title}</h1>
+        {post.publishedAt && (
+          <p className="text-muted" style={{ margin: 0 }}>
+            {new Date(post.publishedAt).toLocaleDateString('de-CH')}
+          </p>
+        )}
+        {post.excerpt && (
+          <p style={{ marginTop: 8, maxWidth: 820 }}>{post.excerpt}</p>
+        )}
+      </header>
 
-      <h1 id="t" style={{ fontSize: '1.5rem', margin: 0 }}>{item.title || 'Bild'}</h1>
-
-      {item.image && (
+      {cover && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={urlFor(item.image).width(1600).height(2200).fit('crop').url()}
-          alt={(item as any)?.image?.alt || item.title || 'Galeriebild'}
+          src={cover}
+          alt={post.mainImage?.alt || post.title}
+          width={1200}
+          height={630}
           style={{ width: '100%', height: 'auto', borderRadius: 12 }}
-          loading="lazy"
         />
       )}
 
-      {item.caption && (
-        <p style={{ marginTop: 8, opacity: .85 }}>{item.caption}</p>
-      )}
+      <Portable value={post.body} />
+
+      {/* JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: post.title,
+            datePublished: post.publishedAt,
+            description: post.excerpt || '',
+            image: cover || undefined,
+            author: { '@type': 'Person', name: 'Bruno Baumgartner' },
+            mainEntityOfPage: `${site}/blog/${post.slug}`,
+          }),
+        }}
+      />
     </article>
   )
 }
