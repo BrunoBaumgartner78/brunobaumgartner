@@ -39,12 +39,11 @@ export default async function BookPage(
   if (!book) return notFound()
 
   const imgSrc = book.cover
-    ? urlFor(book.cover).width(1200).height(1600).fit('min').quality(80).url()
+    ? urlFor(book.cover).width(1000).height(1400).fit('min').quality(80).url()
     : null
 
   const shopUrl: string | undefined =
-    book.shopUrl ||
-    book.buyLinks?.find((b: any) => !!b?.url)?.url
+    (book as any).shopUrl || book.buyLinks?.find((b: any) => !!b?.url)?.url
 
   return (
     <article className="wrap grid gap-6 md:gap-10">
@@ -61,8 +60,6 @@ export default async function BookPage(
       <header className="grid gap-2">
         <h1 className="h1 m-0">{book.title}</h1>
         {book.subtitle && <p className="text-muted m-0">{book.subtitle}</p>}
-
-        {/* Meta-Zeile */}
         <p className="m-0 text-sm opacity-75 flex flex-wrap gap-x-4 gap-y-1">
           {book.year && <span>Jahr: {book.year}</span>}
           {book.pages && <span>Seiten: {book.pages}</span>}
@@ -72,15 +69,15 @@ export default async function BookPage(
         </p>
       </header>
 
-      {/* Layout: mobil untereinander, ab md nebeneinander mit schmalem Bild */}
+      {/* Mobil: untereinander; ab md: Bild schmal links, Text rechts */}
       <section className="grid gap-6 md:flex md:items-start md:gap-10">
-        {/* Cover (mobil: vor Text; desktop: schmal) */}
-        <div className="w-full md:w-[36%] lg:w-[32%] xl:w-[28%]">
+        {/* Cover – mobil vollbreit, ab md schmal neben Text */}
+        <div className="w-full md:w-[220px] lg:w-[260px] xl:w-[300px] md:shrink-0">
           {imgSrc ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={imgSrc}
-              alt={book.cover?.alt || book.title}
+              alt={(book as any).cover?.alt || book.title}
               className="block w-full h-auto rounded-xl shadow-sm border object-cover"
               loading="lazy"
             />
@@ -91,9 +88,9 @@ export default async function BookPage(
           )}
         </div>
 
-        {/* Text + Aktionen (nimmt restliche Breite) */}
+        {/* Text + Aktionen */}
         <div className="grid gap-5 md:flex-1">
-          {/* Beschreibung – genau einmal */}
+          {/* Beschreibung – einmalig */}
           {book.description && (
             <div className="prose max-w-none">
               <p>{book.description}</p>
