@@ -1,62 +1,108 @@
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { getBookBySlug, getAllBooks } from '../../../lib/queries'
-import { urlFor } from '../../../lib/sanity.image'
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { getBookBySlug, getAllBooks } from '@/lib/queries'
+import { urlFor } from '@/lib/sanity.image'
+
+type Params = { slug: string }
 
 export const revalidate = 600
 
 export async function generateStaticParams() {
-  const all = await getAllBooks().catch(() => [])
-  return all.map((b) => ({ slug: b.slug }))
+  const books = await getAllBooks()
+  return books.map(b => ({ slug: b.slug }))
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const book = await getBookBySlug(params.slug).catch(() => null)
-  const title = book?.title ?? 'Buch'
-  const img = book?.cover ? urlFor(book.cover).width(1200).height(630).fit('crop').url() : '/og.png'
-  return {
-    title: `${title} – Buch`,
-    openGraph: { images: [img] },
-    alternates: { canonical: `/buecher/${params.slug}` },
-  }
-}
-
-export default async function BookPage({ params }: { params: { slug: string } }) {
-  const book = await getBookBySlug(params.slug)
+export default async function BookPage(
+  { params }: { params: Promise<Params> }
+) {
+  const { slug } = await params
+  const book = await getBookBySlug(slug)
   if (!book) return notFound()
+
+  const cover =
+    book.cover ? urlFor(book.cover).width(1200).height(1600).fit('crop').url() : undefined
 
   return (
     <article className="wrap grid gap-6" aria-labelledby="t">
-      <nav aria-label="Brotkrumen">
-        <Link className="underline" href="/buecher">← Alle Bücher</Link>
-      </nav>
-
-      <header>
-        <h1 id="t" className="h1">{book.title}</h1>
+      <header className="grid gap-2">
+        <h1 id="t" className="h1" style={{ margin: 0 }}>{book.title}</h1>
+        {book.publishedAt && (
+          <p className="text-muted" style={{ margin: 0 }}>
+            {new Date(book.publishedAt).toLocaleDateString('de-CH')}
+          </p>
+        )}
       </header>
 
-      <div className="grid gap-6 md:grid-cols-[280px,1fr]">
-        {book.cover && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={urlFor(book.cover).width(800).height(1200).fit('crop').url()}
-            alt={book.title}
-            className="rounded w-full h-auto"
-          />
-        )}
+      {cover && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={cover}
+          alt={book.cover?.alt || book.title}
+          style={{ width: '100%', height: 'auto', borderRadius: 12 }}
+          loading="lazy"
+        />
+      )}
 
-        <div className="grid gap-3">
-          {book.publishedAt && <p className="text-sm text-muted">Erschienen: {new Date(book.publishedAt).toLocaleDateString('de-CH')}</p>}
-          {book.isbn && <p className="text-sm">ISBN: {book.isbn}</p>}
-          {book.description && <p>{book.description}</p>}
-          {book.buyUrl && (
-            <p>
-              <a className="btn" href={book.buyUrl} target="_blank" rel="noreferrer">Jetzt kaufen</a>
-            </p>
-          )}
-        </div>
+      {book.description && (
+        <p style={{ margin: 0, maxWidth: 820 }}>{book.description}</p>
+      )}
+
+      <div className="grid gap-2">
+        {book.isbn && <p style={{ margin: 0 }}><strong>ISBN:</strong> {book.isbn}</p>}
+        {book.buyUrl && (
+          <p style={{ margin: 0 }}>
+            <a className="underline" href={book.buyUrl} target="_blank" rel="noopener noreferrer">
+              Buch kaufen
+            </a>
+          </p>
+        )}
       </div>
+
+      <p>
+        <Link href="/buecher" className="underline">← Alle Bücher</Link>
+      </p>
+
+      {/* JSON-LD für SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Book',
+            name: book.title,
+            datePublished: book.publishedAt,
+            image: cover,
+            isbn: book.isbn,
+            url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://brainbloom.ch'}/buecher/${book.slug}`,
+            author: { '@type': 'Person', name: 'Bruno Baumgartner' },
+          }),
+        }}
+      />
     </article>
   )
+}
+
+export async function generateMetadata(
+  { params }: { params: Promise<Params> }
+): Promise<Metadata> {
+  const { slug } = await params
+  const book = await getBookBySlug(slug)
+  if (!book) return { title: 'Buch nicht gefunden' }
+
+  const cover =
+    book.cover ? urlFor(book.cover).width(1200).height(630).fit('crop').url() : undefined
+
+  return {
+    title: book.title,
+    description: book.description || undefined,
+    alternates: { canonical: `/buecher/${book.slug}` },
+    openGraph: {
+      type: 'book',
+      url: `/buecher/${book.slug}`,
+      title: book.title,
+      description: book.description || undefined,
+      images: cover ? [cover] : undefined,
+    },
+  }
 }
