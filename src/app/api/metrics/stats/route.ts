@@ -1,33 +1,46 @@
+import { NextResponse } from 'next/server'
+import { redis } from '../../../../lib/redits' // <-- Upstash REST-Client verwenden
+
 export const runtime = 'edge'
 
-import { NextResponse } from 'next/server'
-import { kv } from '@vercel/kv'
-
+function ym(d = new Date()) {
+  const y = d.getUTCFullYear()
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0')
+  return `${y}-${m}`
+}
 function ymd(d = new Date()) {
   const y = d.getUTCFullYear()
   const m = String(d.getUTCMonth() + 1).padStart(2, '0')
   const day = String(d.getUTCDate()).padStart(2, '0')
   return `${y}-${m}-${day}`
 }
-function ym(d = new Date()) {
-  const y = d.getUTCFullYear()
-  const m = String(d.getUTCMonth() + 1).padStart(2, '0')
-  return `${y}-${m}`
-}
 
 export async function GET() {
-  const now = Date.now()
-  const total = Number(await kv.get('hits:total')) || 0
-  const day = Number(await kv.get(`hits:day:${ymd()}`)) || 0
-  const month = Number(await kv.get(`hits:month:${ym()}`)) || 0
+  try {
+    const now = new Date()
+    const kTotal = 'metrics:total'
+    const kMonth = `metrics:month:${ym(now)}`
+    const kDay   = `metrics:day:${ymd(now)}`
+    const zOnline = 'metrics:online:z'
 
-  // Online frisch trimmen und zählen
-  const onlineKey = 'online:z'
-  await kv.zremrangebyscore(onlineKey, 0, now - 5 * 60 * 1000)
-  const online = await kv.zcard(onlineKey)
+    // Werte lesen (fehlende => 0)
+    const [totalRaw, monthRaw, dayRaw, onlineCount] = await Promise.all([
+      redis.get<number>(kTotal),
+      redis.get<number>(kMonth),
+      redis.get<number>(kDay),
+      redis.zcard(zOnline),
+    ])
 
-  const res = NextResponse.json({ total, month, day, online })
-  res.headers.set('Cache-Control', 'no-store')
-  res.headers.set('Access-Control-Allow-Origin', '*')
-  return res
+    const total = Number(totalRaw ?? 0)
+    const month = Number(monthRaw ?? 0)
+    const day   = Number(dayRaw ?? 0)
+    const online = Number(onlineCount ?? 0)
+
+    return NextResponse.json({ ok: true, total, month, day, online })
+  } catch (err: any) {
+    return NextResponse.json(
+      { ok: false, error: err?.message ?? 'unknown error' },
+      { status: 500 },
+    )
+  }
 }
