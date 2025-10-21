@@ -60,9 +60,7 @@ export default async function BookPage(
       {/* Titelbereich */}
       <header className="grid gap-2">
         <h1 className="h1 m-0">{book.title}</h1>
-        {book.subtitle && (
-          <p className="text-muted m-0">{book.subtitle}</p>
-        )}
+        {book.subtitle && <p className="text-muted m-0">{book.subtitle}</p>}
 
         {/* Meta-Zeile */}
         <p className="m-0 text-sm opacity-75 flex flex-wrap gap-x-4 gap-y-1">
@@ -74,10 +72,10 @@ export default async function BookPage(
         </p>
       </header>
 
-      {/* 2-Spalten Layout (mobil: untereinander) */}
-      <section className="grid gap-6 md:grid-cols-2 items-start">
-        {/* Cover */}
-        <div className="w-full">
+      {/* Layout: mobil untereinander, ab md nebeneinander mit schmalem Bild */}
+      <section className="grid gap-6 md:flex md:items-start md:gap-10">
+        {/* Cover (mobil: vor Text; desktop: schmal) */}
+        <div className="w-full md:w-[36%] lg:w-[32%] xl:w-[28%]">
           {imgSrc ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -93,8 +91,8 @@ export default async function BookPage(
           )}
         </div>
 
-        {/* Text + Aktionen */}
-        <div className="grid gap-5">
+        {/* Text + Aktionen (nimmt restliche Breite) */}
+        <div className="grid gap-5 md:flex-1">
           {/* Beschreibung – genau einmal */}
           {book.description && (
             <div className="prose max-w-none">
@@ -110,11 +108,11 @@ export default async function BookPage(
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center rounded-md px-4 py-2 border bg-black text-white hover:bg-neutral-800 transition"
+                aria-label="Zum Shop (extern)"
               >
                 Zum Shop
               </a>
             )}
-            {/* Optionale zusätzliche Händler */}
             {Array.isArray(book.buyLinks) && book.buyLinks.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {book.buyLinks
@@ -126,6 +124,7 @@ export default async function BookPage(
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center rounded-md px-3 py-1.5 border hover:bg-neutral-50 transition"
+                      aria-label={`Kaufen bei ${b.label || 'weiterer Händler'} (extern)`}
                     >
                       {b.label || 'Weitere Händler'}
                     </a>
