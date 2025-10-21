@@ -1,6 +1,6 @@
 // src/app/api/guestbook/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { redis } from '../../../lib/redits'
+import { redis } from '../../../lib/redis'
 
 export const runtime = 'edge'
 

@@ -1,6 +1,6 @@
 // src/app/api/metrics/stats/route.ts
 import { NextResponse } from 'next/server'
-import { getRedis } from '../../../../lib/redits'
+import { getRedis } from '../../../../lib/redis'
 
 export const runtime = 'edge'
 
