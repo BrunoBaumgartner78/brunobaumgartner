@@ -58,12 +58,18 @@ export default async function BookPage({ params }: PageProps) {
     isbn,
     language,
     publisher,
-    description,      // KURZ — wird nur im Hero gerendert
-    longDescription,  // LANG — wird unten gerendert (wenn vorhanden)
+    description,      // kurz (nur im Hero)
+    longDescription,  // lang (unten, wenn vorhanden)
     buyLinks,
     cover,
     tags,
-  } = book
+    shopUrl,          // optionales Feld im Sanity-Dokument
+  } = book as any
+
+  // Shop-Link: Buch-spezifisch > ENV > Fallback
+  const envShop = process.env.NEXT_PUBLIC_SHOP_URL
+  const finalShopUrl: string = shopUrl || envShop || '/buecher'
+  const isExternalShop = /^https?:\/\//i.test(finalShopUrl)
 
   return (
     <div className="wrap site-main" style={{ display: 'grid', gap: '2rem' }}>
@@ -155,15 +161,15 @@ export default async function BookPage({ params }: PageProps) {
                   {isbn && <Chip label={`ISBN ${isbn}`} />}
                 </div>
 
-                {/* KURZBESCHREIBUNG — nur EINMAL hier */}
+                {/* Kurzbeschreibung — nur hier */}
                 {description && (
                   <p style={{ marginTop: 12, fontSize: 15, lineHeight: 1.6 }}>{description}</p>
                 )}
 
-                {/* Kauf-Links */}
-                {Array.isArray(buyLinks) && buyLinks.length > 0 && (
-                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 8 }}>
-                    {buyLinks.map((b: any, i: number) =>
+                {/* Kauf-Links + Shop-Link */}
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 8 }}>
+                  {Array.isArray(buyLinks) &&
+                    buyLinks.map((b: any, i: number) =>
                       b?.url ? (
                         <a
                           key={`${b.url}-${i}`}
@@ -180,13 +186,31 @@ export default async function BookPage({ params }: PageProps) {
                             background: 'var(--btn-bg, #111827)',
                             color: '#fff',
                           }}
+                          aria-label={b.label ? `Kaufen: ${b.label}` : 'Kaufen'}
                         >
                           {b.label || 'Kaufen'}
                         </a>
                       ) : null
                     )}
-                  </div>
-                )}
+
+                  {/* Zum Shop (immer anzeigen) */}
+                  <a
+                    href={finalShopUrl}
+                    {...(isExternalShop ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    style={{
+                      fontSize: 14,
+                      border: '1px solid var(--color-border, #e5e7eb)',
+                      borderRadius: 999,
+                      padding: '8px 12px',
+                      textDecoration: 'none',
+                      background: '#fff',
+                      color: 'var(--text, #111827)',
+                    }}
+                    aria-label="Zum Shop"
+                  >
+                    Zum Shop
+                  </a>
+                </div>
               </div>
             </div>
 
