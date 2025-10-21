@@ -87,7 +87,7 @@ export default async function BuecherPage() {
                       style={{
                         fontSize: '1.05rem',
                         lineHeight: 1.35,
-                        margin: 0,
+                        margin: 5,
                         letterSpacing: '.2px',
                       }}
                     >
