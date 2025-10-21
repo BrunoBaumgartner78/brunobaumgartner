@@ -1,7 +1,7 @@
 import { defineConfig } from 'sanity'
 import { deskTool } from 'sanity/desk'
 import { visionTool } from '@sanity/vision'
-import { schema } from './src/app/sanity/schema' // ← Pfad prüfen
+import { schema } from './src/app/sanity/lib/schema' // ← Pfad prüfen
 
 export default defineConfig({
   name: 'default',
