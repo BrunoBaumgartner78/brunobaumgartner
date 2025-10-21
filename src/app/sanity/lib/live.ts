@@ -1,25 +1,24 @@
-// src/sanity/lib/live.ts
+// src/app/sanity/lib/live.ts
 import React from 'react'
-import { client } from './client'
+import { sanityClient } from '@/lib/sanity.client'
 
-type FetchArgs<TParams extends Record<string, unknown> = Record<string, unknown>> = {
+type FetchArgs = {
   query: string
-  params?: TParams
+  params?: Record<string, unknown>
   tags?: string[]
   revalidate?: number
 }
 
-// Ersatz für "defineLive" aus next-sanity/live
 export async function sanityFetch<T = unknown>({
   query,
-  params = {} as Record<string, unknown>,
+  params = {},
   tags = [],
   revalidate = 300,
-}: FetchArgs) {
-  return client.fetch<T>(query, params, { next: { revalidate, tags } })
+}: FetchArgs): Promise<T> {
+  return sanityClient.fetch<T>(query, params, { next: { revalidate, tags } })
 }
 
-// No-op Komponente – kann in layout.tsx gerendert bleiben
+// No-op, darf in layout.tsx stehen bleiben
 export function SanityLive() {
   return null
 }
