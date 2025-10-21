@@ -1,25 +1,59 @@
 ﻿// src/lib/queries.ts
 import { sanityClient } from '@/lib/sanity.client'
 
-/* -------------------- POSTS -------------------- */
+// ---------- POSTS ----------
 
 export async function getRecentPosts(limit = 5) {
-  const query = `
-    *[_type == "post"] | order(publishedAt desc) [0...$limit]{
-      _id,
-      title,
-      "slug": slug.current,
-      excerpt,
-      mainImage,
-      publishedAt
-    }
+  const query = /* groq */ `
+    *[_type == "post" && defined(slug.current) && !(_id in path("drafts.**"))]
+      | order(coalesce(publishedAt, _createdAt) desc) [0...$limit]{
+        _id,
+        title,
+        "slug": slug.current,
+        excerpt,
+        mainImage,
+        publishedAt
+      }
   `
   return sanityClient.fetch(query, { limit })
 }
 
+/**
+ * Pagination: liefert items + total in einem Request.
+ * page: 1-basiert; perPage: Anzahl pro Seite
+ */
+export async function getPostsPage(page = 1, perPage = 9): Promise<{
+  items: Array<{
+    _id: string
+    title: string
+    slug: string
+    excerpt?: string
+    mainImage?: any
+    publishedAt?: string
+  }>
+  total: number
+}> {
+  const start = Math.max(0, (page - 1) * perPage)
+  const end = start + perPage
+  const query = /* groq */ `
+  {
+    "items": *[_type == "post" && defined(slug.current) && !(_id in path("drafts.**"))]
+      | order(coalesce(publishedAt, _createdAt) desc) [$start...$end]{
+        _id,
+        title,
+        "slug": slug.current,
+        excerpt,
+        mainImage,
+        publishedAt
+      },
+    "total": count(*[_type == "post" && defined(slug.current) && !(_id in path("drafts.**"))])
+  }`
+  return sanityClient.fetch(query, { start, end })
+}
+
 export async function getPostBySlug(slug: string) {
-  const query = `
-    *[_type == "post" && slug.current == $slug][0]{
+  const query = /* groq */ `
+    *[_type == "post" && slug.current == $slug && !(_id in path("drafts.**"))][0]{
       _id,
       title,
       "slug": slug.current,
@@ -33,20 +67,21 @@ export async function getPostBySlug(slug: string) {
 }
 
 export async function getAllPosts() {
-  const query = `
-    *[_type == "post"] | order(publishedAt desc){
-      "slug": slug.current,
-      publishedAt,
-      _updatedAt
-    }
+  const query = /* groq */ `
+    *[_type == "post" && defined(slug.current) && !(_id in path("drafts.**"))]
+      | order(coalesce(publishedAt, _createdAt) desc){
+        "slug": slug.current,
+        publishedAt,
+        _updatedAt
+      }
   `
   return sanityClient.fetch(query)
 }
 
-/* ------------------- GALLERY ------------------- */
+// ---------- GALLERY ----------
 
 export async function getGallery(limit = 12) {
-  const query = `
+  const query = /* groq */ `
     *[_type == "galleryImage"] | order(_createdAt desc) [0...$limit]{
       _id,
       title,
@@ -59,7 +94,7 @@ export async function getGallery(limit = 12) {
 }
 
 export async function getGalleryItem(slug: string) {
-  const query = `
+  const query = /* groq */ `
     *[_type == "galleryImage" && slug.current == $slug][0]{
       _id,
       title,
@@ -72,18 +107,15 @@ export async function getGalleryItem(slug: string) {
   return sanityClient.fetch(query, { slug })
 }
 
-/* -------------------- BOOKS -------------------- */
+// ---------- BOOKS ----------
 
-/**
- * Einheitliches Shop-Feld: mappe diverse mögliche Feldnamen -> "shopUrl".
- * WICHTIG: Deins heißt in Sanity "buyUrl", deshalb steht es als erstes.
- */
+// Einheitliches Shop-Feld: mappe verbreitete Feldnamen -> "shopUrl"
 const SHOP_URL_COALESCE = `
   coalesce(buyUrl, shopUrl, shopURL, shop, storeUrl, storeURL, externalUrl, url)
 `
 
 export async function getBooks(limit = 12) {
-  const query = `
+  const query = /* groq */ `
     *[_type == "book"] | order(_createdAt desc) [0...$limit]{
       _id,
       title,
@@ -103,7 +135,7 @@ export async function getBooks(limit = 12) {
 }
 
 export async function getBook(slug: string) {
-  const query = `
+  const query = /* groq */ `
     *[_type == "book" && slug.current == $slug][0]{
       _id,
       title,
@@ -129,7 +161,7 @@ export async function getBook(slug: string) {
 }
 
 export async function getBookSlugs() {
-  const query = `
+  const query = /* groq */ `
     *[_type == "book" && defined(slug.current)]{
       "slug": slug.current
     }
@@ -138,8 +170,8 @@ export async function getBookSlugs() {
 }
 
 export async function getAllBooks() {
-  const query = `
-    *[_type == "book"]{
+  const query = /* groq */ `
+    *[_type == "book" && defined(slug.current)]{
       "slug": slug.current,
       _updatedAt,
       _createdAt
