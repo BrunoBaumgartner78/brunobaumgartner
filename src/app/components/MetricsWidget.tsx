@@ -1,5 +1,5 @@
 // src/app/components/MetricsWidget.tsx
-import { getRedis } from '../../lib/redits'
+import  { getRedis } from '@/lib/redits'
 
 // in src/app/components/MetricsWidget.tsx (nur Stil der Zahl)
 const numStyle: React.CSSProperties = {
