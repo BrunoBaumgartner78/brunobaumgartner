@@ -1,16 +1,6 @@
-// src/app/components/MetricsWidget.tsx
+// Server Component – kein "use client"
 import { redis } from '@/lib/redis'
-import type React from 'react'
-
-const numStyle: React.CSSProperties = {
-  fontVariantNumeric: 'tabular-nums',
-  letterSpacing: '0.3px',
-  fontWeight: 600,
-  textAlign: 'right',
-  minWidth: '14ch',
-  display: 'inline-block',
-  whiteSpace: 'nowrap',
-}
+import s from './MetricsWidget.module.css'
 
 function ym(d = new Date()) {
   const y = d.getUTCFullYear()
@@ -46,25 +36,29 @@ export default async function MetricsWidget() {
     day    = toNum(d)
     online = toNum(o)
   } catch {
-    // ENV / Netzwerk fehlt -> Fallback auf 0
+    // ENV/Netzwerk fehlt -> bleibt 0
   }
 
   const fmt = (n: number) => n.toLocaleString('de-CH')
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-        gap: '0.75rem',
-        fontSize: '0.9rem',
-        opacity: 0.9,
-      }}
-    >
-      <div><strong>Besuche gesamt:</strong> <span style={numStyle}>{fmt(total)}</span></div>
-      <div><strong>Diesen Monat:</strong> <span style={numStyle}>{fmt(month)}</span></div>
-      <div><strong>Heute:</strong> <span style={numStyle}>{fmt(day)}</span></div>
-      <div><strong>Online:</strong> <span style={numStyle}>{fmt(online)}</span></div>
+    <div className={s.grid} aria-label="Seiten-Metriken">
+      <div className={s.item}>
+        <span className={s.label}>Besuche gesamt:</span>
+        <span className={s.num}>{fmt(total)}</span>
+      </div>
+      <div className={s.item}>
+        <span className={s.label}>Diesen Monat:</span>
+        <span className={s.num}>{fmt(month)}</span>
+      </div>
+      <div className={s.item}>
+        <span className={s.label}>Heute:</span>
+        <span className={s.num}>{fmt(day)}</span>
+      </div>
+      <div className={s.item}>
+        <span className={s.label}>Online:</span>
+        <span className={s.num}>{fmt(online)}</span>
+      </div>
     </div>
   )
 }
