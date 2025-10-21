@@ -1,6 +1,5 @@
 // src/app/components/MetricsWidget.tsx
-// Server Component – kein "use client"
-import type React from 'react'
+// Server Component – KEIN "use client"
 import { redis } from '@/lib/redis'
 
 function ym(d = new Date()) {
@@ -19,39 +18,6 @@ function toNum(v: unknown) {
   if (typeof v === 'number') return v
   if (typeof v === 'string') return Number.parseInt(v, 10) || 0
   return 0
-}
-
-// im MetricsWidget: gridStyle
-const gridStyle: React.CSSProperties = {
-  display: 'grid',
-  gap: '0.75rem',
-  fontSize: '0.9rem',
-  opacity: 0.9,
-  gridTemplateColumns: 'repeat(auto-fit, minmax(0, 1fr))', // <- kein min-width
-}
-
-
-const itemStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'baseline',
-  justifyContent: 'space-between',
-  gap: '0.5rem',
-  minWidth: 0,// Schrumpfen innerhalb des Grids erlauben
-}
-
-const labelStyle: React.CSSProperties = {
-  fontWeight: 600,
-  flex: '0 1 auto',
-}
-
-const numStyle: React.CSSProperties = {
-  fontVariantNumeric: 'tabular-nums',
-  letterSpacing: '0.3px',
-  fontWeight: 600,
-  textAlign: 'right',
-  whiteSpace: 'nowrap',
-  flex: '1 1 auto',
-  minWidth: 0, // wichtig, damit lange Zahlen nicht überlaufen
 }
 
 export default async function MetricsWidget() {
@@ -75,8 +41,54 @@ export default async function MetricsWidget() {
 
   const fmt = (n: number) => n.toLocaleString('de-CH')
 
+  // --- Styles (alles inline) ---
+  const wrapStyle: React.CSSProperties = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '10px 14px',
+    width: '100%',
+    maxWidth: '100%',
+    fontSize: '0.92rem',
+    opacity: 0.9,
+  }
+
+  const itemStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'baseline',
+    gap: 8,
+    padding: '8px 10px',
+    border: '1px solid var(--color-border, #e5e7eb)',
+    borderRadius: 10,
+    background: 'var(--color-card, transparent)',
+    // responsive ohne Media-Query:
+    // Mindestens ~220px, darf wachsen und wrappt automatisch.
+    flex: '1 1 220px',
+    minWidth: 220,
+    maxWidth: '100%',
+    lineHeight: 1.2,
+  }
+
+  const labelStyle: React.CSSProperties = {
+    fontWeight: 600,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    minWidth: 0, // wichtig, damit der Text schrumpfen darf
+  }
+
+  const numStyle: React.CSSProperties = {
+    marginLeft: 'auto',
+    fontVariantNumeric: 'tabular-nums',
+    letterSpacing: '0.3px',
+    fontWeight: 700,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    lineHeight: 1.2,
+  }
+
   return (
-    <div style={gridStyle} aria-label="Seiten-Metriken">
+    <div style={wrapStyle} role="group" aria-label="Seiten-Metriken">
       <div style={itemStyle}>
         <span style={labelStyle}>Besuche gesamt:</span>
         <span style={numStyle}>{fmt(total)}</span>
