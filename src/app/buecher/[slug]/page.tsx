@@ -31,23 +31,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description,
     alternates: { canonical: `/buecher/${slug}` },
-    openGraph: {
-      type: 'article',
-      title,
-      description,
-      images: ogImage ? [ogImage] : undefined,
-    },
-    twitter: {
-      card: 'summary_large_image',
-      images: ogImage ? [ogImage] : undefined,
-    },
+    openGraph: { type: 'article', title, description, images: ogImage ? [ogImage] : undefined },
+    twitter: { card: 'summary_large_image', images: ogImage ? [ogImage] : undefined },
   }
 }
 
 export default async function BookPage({ params }: PageProps) {
   const { slug } = await params
   const book = await getBook(slug)
-
   if (!book) notFound()
 
   const {
@@ -58,30 +49,20 @@ export default async function BookPage({ params }: PageProps) {
     isbn,
     language,
     publisher,
-    description,      // kurz (nur im Hero)
-    longDescription,  // lang (unten, wenn vorhanden)
+    description,      // kurz (nur hier im Hero – einmalig)
+    longDescription,  // lang (unten als PortableText)
     buyLinks,
     cover,
     tags,
-    shopUrl,          // optionales Feld im Sanity-Dokument
+    shopUrl,          // NUR dieser Link wird für "Zum Shop" genutzt
   } = book as any
 
-  // Shop-Link: Buch-spezifisch > ENV > Fallback
-  const envShop = process.env.NEXT_PUBLIC_SHOP_URL
-  const finalShopUrl: string = shopUrl || envShop || '/buecher'
-  const isExternalShop = /^https?:\/\//i.test(finalShopUrl)
+  const isExternal = (url: string) => /^https?:\/\//i.test(url)
 
   return (
     <div className="wrap site-main" style={{ display: 'grid', gap: '2rem' }}>
       {/* ===== Hero ===== */}
-      <section
-        aria-labelledby="book-title"
-        style={{
-          display: 'grid',
-          gap: '1.25rem',
-          gridTemplateColumns: 'minmax(0, 1fr)',
-        }}
-      >
+      <section aria-labelledby="book-title" style={{ display: 'grid', gap: '1.25rem' }}>
         <div
           className="card"
           style={{
@@ -97,106 +78,96 @@ export default async function BookPage({ params }: PageProps) {
             style={{
               display: 'grid',
               gap: 16,
-              gridTemplateColumns: 'minmax(0, 1fr)',
+              gridTemplateColumns: '160px 1fr',
+              alignItems: 'start',
             }}
           >
-            {/* Cover + Meta im flex Layout */}
-            <div
-              style={{
-                display: 'grid',
-                gap: 16,
-                gridTemplateColumns: '160px 1fr',
-                alignItems: 'start',
-              }}
-            >
-              {/* Cover */}
-              <div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                {cover ? (
-                  <img
-                    src={urlFor(cover).width(800).height(1100).fit('fill').url()}
-                    alt={cover.alt || title}
-                    style={{
-                      width: '100%',
-                      height: 'auto',
-                      borderRadius: 10,
-                      objectFit: 'cover',
-                      boxShadow: '0 4px 24px rgba(0,0,0,.08)',
-                    }}
-                    loading="eager"
-                  />
-                ) : (
-                  <div
-                    style={{
-                      width: '100%',
-                      aspectRatio: '3/4',
-                      borderRadius: 10,
-                      background: '#f3f4f6',
-                      display: 'grid',
-                      placeItems: 'center',
-                      color: '#9ca3af',
-                      fontSize: 12,
-                    }}
-                  >
-                    Kein Cover
-                  </div>
-                )}
+            {/* Cover */}
+            <div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {cover ? (
+                <img
+                  src={urlFor(cover).width(800).height(1100).fit('fill').url()}
+                  alt={cover.alt || title}
+                  style={{
+                    width: '100%',
+                    height: 'auto',
+                    borderRadius: 10,
+                    objectFit: 'cover',
+                    boxShadow: '0 4px 24px rgba(0,0,0,.08)',
+                  }}
+                  loading="eager"
+                />
+              ) : (
+                <div
+                  style={{
+                    width: '100%',
+                    aspectRatio: '3/4',
+                    borderRadius: 10,
+                    background: '#f3f4f6',
+                    display: 'grid',
+                    placeItems: 'center',
+                    color: '#9ca3af',
+                    fontSize: 12,
+                  }}
+                >
+                  Kein Cover
+                </div>
+              )}
+            </div>
+
+            {/* Titel, Meta & Kurzbeschreibung */}
+            <div style={{ display: 'grid', gap: 8 }}>
+              <h1 id="book-title" style={{ margin: 0, lineHeight: 1.2 }}>{title}</h1>
+              {subtitle && <p style={{ margin: 0, opacity: 0.8, fontSize: 16 }}>{subtitle}</p>}
+
+              {/* Meta-Chips */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+                {year && <Chip label={String(year)} />}
+                {pages && <Chip label={`${pages} Seiten`} />}
+                {language && <Chip label={language} />}
+                {publisher && <Chip label={publisher} />}
+                {isbn && <Chip label={`ISBN ${isbn}`} />}
               </div>
 
-              {/* Titel & Kurzbeschreibung */}
-              <div style={{ display: 'grid', gap: 8 }}>
-                <h1 id="book-title" style={{ margin: 0, lineHeight: 1.2 }}>
-                  {title}
-                </h1>
-                {subtitle && (
-                  <p style={{ margin: 0, opacity: 0.8, fontSize: 16 }}>{subtitle}</p>
-                )}
+              {/* Kurzbeschreibung – EINMALIG hier */}
+              {description && (
+                <p style={{ marginTop: 12, fontSize: 15, lineHeight: 1.6 }}>{description}</p>
+              )}
 
-                {/* Meta-Chips */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
-                  {year && <Chip label={String(year)} />}
-                  {pages && <Chip label={`${pages} Seiten`} />}
-                  {language && <Chip label={language} />}
-                  {publisher && <Chip label={publisher} />}
-                  {isbn && <Chip label={`ISBN ${isbn}`} />}
-                </div>
+              {/* Kauf-Links + (nur) Sanity-Shoplink */}
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 8 }}>
+                {Array.isArray(buyLinks) &&
+                  buyLinks.map((b: any, i: number) =>
+                    b?.url ? (
+                      <a
+                        key={`${b.url}-${i}`}
+                        href={b.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          fontSize: 14,
+                          border: '1px solid var(--color-border, #e5e7eb)',
+                          borderRadius: 999,
+                          padding: '8px 12px',
+                          textDecoration: 'none',
+                          background: 'var(--btn-bg, #111827)',
+                          color: '#fff',
+                        }}
+                        aria-label={b.label ? `Kaufen: ${b.label}` : 'Kaufen'}
+                      >
+                        {b.label || 'Kaufen'}
+                      </a>
+                    ) : null
+                  )}
 
-                {/* Kurzbeschreibung — nur hier */}
-                {description && (
-                  <p style={{ marginTop: 12, fontSize: 15, lineHeight: 1.6 }}>{description}</p>
-                )}
-
-                {/* Kauf-Links + Shop-Link */}
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 8 }}>
-                  {Array.isArray(buyLinks) &&
-                    buyLinks.map((b: any, i: number) =>
-                      b?.url ? (
-                        <a
-                          key={`${b.url}-${i}`}
-                          href={b.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline"
-                          style={{
-                            fontSize: 14,
-                            border: '1px solid var(--color-border, #e5e7eb)',
-                            borderRadius: 999,
-                            padding: '8px 12px',
-                            textDecoration: 'none',
-                            background: 'var(--btn-bg, #111827)',
-                            color: '#fff',
-                          }}
-                          aria-label={b.label ? `Kaufen: ${b.label}` : 'Kaufen'}
-                        >
-                          {b.label || 'Kaufen'}
-                        </a>
-                      ) : null
-                    )}
-
-                  {/* Zum Shop (immer anzeigen) */}
+                {/* Zum Shop – nur wenn in Sanity gesetzt */}
+                {shopUrl && (
                   <a
-                    href={finalShopUrl}
-                    {...(isExternalShop ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    href={shopUrl}
+                    {...(isExternal(shopUrl)
+                      ? { target: '_blank', rel: 'noopener noreferrer' }
+                      : {})}
                     style={{
                       fontSize: 14,
                       border: '1px solid var(--color-border, #e5e7eb)',
@@ -210,30 +181,30 @@ export default async function BookPage({ params }: PageProps) {
                   >
                     Zum Shop
                   </a>
-                </div>
+                )}
               </div>
             </div>
-
-            {/* Tags */}
-            {!!(tags && tags.length) && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {tags.map((t: string, i: number) => (
-                  <span
-                    key={`${t}-${i}`}
-                    style={{
-                      fontSize: 12,
-                      padding: '6px 10px',
-                      borderRadius: 999,
-                      border: '1px solid var(--color-border, #e5e7eb)',
-                      background: '#fafafa',
-                    }}
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
+
+          {/* Tags */}
+          {!!(tags && tags.length) && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {tags.map((t: string, i: number) => (
+                <span
+                  key={`${t}-${i}`}
+                  style={{
+                    fontSize: 12,
+                    padding: '6px 10px',
+                    borderRadius: 999,
+                    border: '1px solid var(--color-border, #e5e7eb)',
+                    background: '#fafafa',
+                  }}
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
