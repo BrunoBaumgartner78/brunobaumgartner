@@ -1,9 +1,9 @@
 ﻿// src/lib/queries.ts
-import sanityClient from '@/lib/sanity.client'
+import { sanityClient } from '@/lib/sanity.client'
 
 // ---------- Blog ----------
 
-/** Neueste Blogposts (für Startseite / Übersichtsseiten) */
+/** Neueste Blogposts (Startseite/Übersicht) */
 export async function getRecentPosts(limit = 5) {
   const query = `
     *[_type == "post"] | order(publishedAt desc)[0...$limit]{
@@ -19,7 +19,7 @@ export async function getRecentPosts(limit = 5) {
   return sanityClient.fetch(query, { limit })
 }
 
-/** Alle Posts (für Feed/Sitemap o.ä.) */
+/** Alle Posts (z.B. für Sitemap/Feed) */
 export async function getAllPosts() {
   const query = `
     *[_type == "post"] | order(publishedAt desc){
@@ -35,7 +35,7 @@ export async function getAllPosts() {
   return sanityClient.fetch(query)
 }
 
-/** Einzelner Post per Slug (für /blog/[slug]) */
+/** Einzelner Post per Slug (Detailseite /blog/[slug]) */
 export async function getPost(slug: string) {
   const query = `
     *[_type == "post" && slug.current == $slug][0]{
@@ -52,7 +52,10 @@ export async function getPost(slug: string) {
   return sanityClient.fetch(query, { slug })
 }
 
-/** Nur Slugs aller Posts (für generateStaticParams) */
+/** Alias, falls bestehender Code getPostBySlug verwendet */
+export const getPostBySlug = getPost
+
+/** Nur Slugs aller Posts (generateStaticParams) */
 export async function getPostSlugs() {
   const query = `*[_type == "post" && defined(slug.current)]{ "slug": slug.current }`
   return sanityClient.fetch<{ slug: string }[]>(query)
@@ -60,7 +63,7 @@ export async function getPostSlugs() {
 
 // ---------- Bücher ----------
 
-/** Bücherliste (limitierbar – für Startseite/Übersicht) */
+/** Bücherliste (Startseite/Übersicht) */
 export async function getBooks(limit = 12) {
   const query = `
     *[_type == "book"] | order(coalesce(year, _updatedAt) desc)[0...$limit]{
@@ -69,7 +72,7 @@ export async function getBooks(limit = 12) {
       subtitle,
       "slug": slug.current,
       year,
-      cover,            // erwartet: {asset, alt?}
+      cover,          // {asset, alt?}
       tags,
       _updatedAt
     }
@@ -77,7 +80,7 @@ export async function getBooks(limit = 12) {
   return sanityClient.fetch(query, { limit })
 }
 
-/** Ein Buch per Slug (Detailseite /buecher/[slug]) */
+/** Einzelnes Buch per Slug (Detailseite /buecher/[slug]) */
 export async function getBook(slug: string) {
   const query = `
     *[_type == "book" && slug.current == $slug][0]{
@@ -90,8 +93,8 @@ export async function getBook(slug: string) {
       isbn,
       language,
       publisher,
-      description,       // kurze Beschreibung
-      longDescription,   // ausführlich (Portable Text)
+      description,       // kurz
+      longDescription,   // ausführlich (Portable Text) – falls im Schema vorhanden
       buyLinks[]{label, url},
       tags,
       cover,
@@ -101,7 +104,10 @@ export async function getBook(slug: string) {
   return sanityClient.fetch(query, { slug })
 }
 
-/** Alle Bücher (für Sitemap/Feed) */
+/** Alias, falls bestehender Code getBookBySlug verwendet */
+export const getBookBySlug = getBook
+
+/** Alle Bücher (z.B. für Sitemap/Feed) */
 export async function getAllBooks() {
   const query = `
     *[_type == "book"] | order(coalesce(year, _updatedAt) desc){
@@ -115,7 +121,7 @@ export async function getAllBooks() {
   return sanityClient.fetch(query)
 }
 
-/** Nur Slugs aller Bücher (für generateStaticParams) */
+/** Nur Slugs aller Bücher (generateStaticParams) */
 export async function getBookSlugs() {
   const query = `*[_type == "book" && defined(slug.current)]{ "slug": slug.current }`
   return sanityClient.fetch<{ slug: string }[]>(query)
@@ -123,7 +129,7 @@ export async function getBookSlugs() {
 
 // ---------- Galerie ----------
 
-/** Galerie-Items (für Übersichtsseite) */
+/** Galerie-Items (Übersicht) */
 export async function getGallery(limit = 24) {
   const query = `
     *[_type == "galleryImage"] | order(_createdAt desc)[0...$limit]{
@@ -148,25 +154,22 @@ export async function getGalleryItem(slug: string) {
       image,
       alt,
       caption,
-      body,        // falls es Portable Text gibt
+      body,        // falls Portable Text vorhanden
       _updatedAt
     }
   `
   return sanityClient.fetch(query, { slug })
 }
 
-/** Nur Slugs aller Galerie-Items (für generateStaticParams) */
+/** Nur Slugs aller Galerie-Items (generateStaticParams) */
 export async function getGallerySlugs() {
   const query = `*[_type == "galleryImage" && defined(slug.current)]{ "slug": slug.current }`
   return sanityClient.fetch<{ slug: string }[]>(query)
 }
 
-// ---------- Hilfen für Sitemap/Feeds ----------
+// ---------- Hilfen für Sitemap/Feed ----------
 
-/**
- * Einfache Hilfsfunktion, um eine ISO-Lastmod zu liefern.
- * (Viele deiner Routen nutzen publishedAt/_updatedAt.)
- */
+/** ISO-lastmod aus publishedAt/_updatedAt ableiten */
 export function pickLastmod(input: { publishedAt?: string; _updatedAt?: string }) {
   const date = input.publishedAt || input._updatedAt
   return date ? new Date(date).toISOString() : undefined
