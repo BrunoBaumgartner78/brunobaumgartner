@@ -1,7 +1,7 @@
+// src/app/components/MetricsWidget.tsx
 // Server Component – kein "use client"
+import type React from 'react'
 import { redis } from '@/lib/redis'
-import s from './MetricsWidget.module.css'
-
 
 function ym(d = new Date()) {
   const y = d.getUTCFullYear()
@@ -19,6 +19,38 @@ function toNum(v: unknown) {
   if (typeof v === 'number') return v
   if (typeof v === 'string') return Number.parseInt(v, 10) || 0
   return 0
+}
+
+const gridStyle: React.CSSProperties = {
+  display: 'grid',
+  gap: '0.75rem',
+  fontSize: '0.9rem',
+  opacity: 0.9,
+  // responsiv: 1..n Spalten, mindestens ~22rem breit
+  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 22rem), 1fr))',
+}
+
+const itemStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'baseline',
+  justifyContent: 'space-between',
+  gap: '0.5rem',
+  minWidth: 0, // Schrumpfen innerhalb des Grids erlauben
+}
+
+const labelStyle: React.CSSProperties = {
+  fontWeight: 600,
+  flex: '0 1 auto',
+}
+
+const numStyle: React.CSSProperties = {
+  fontVariantNumeric: 'tabular-nums',
+  letterSpacing: '0.3px',
+  fontWeight: 600,
+  textAlign: 'right',
+  whiteSpace: 'nowrap',
+  flex: '1 1 auto',
+  minWidth: 0, // wichtig, damit lange Zahlen nicht überlaufen
 }
 
 export default async function MetricsWidget() {
@@ -43,22 +75,22 @@ export default async function MetricsWidget() {
   const fmt = (n: number) => n.toLocaleString('de-CH')
 
   return (
-    <div className={s.grid} aria-label="Seiten-Metriken">
-      <div className={s.item}>
-        <span className={s.label}>Besuche gesamt:</span>
-        <span className={s.num}>{fmt(total)}</span>
+    <div style={gridStyle} aria-label="Seiten-Metriken">
+      <div style={itemStyle}>
+        <span style={labelStyle}>Besuche gesamt:</span>
+        <span style={numStyle}>{fmt(total)}</span>
       </div>
-      <div className={s.item}>
-        <span className={s.label}>Diesen Monat:</span>
-        <span className={s.num}>{fmt(month)}</span>
+      <div style={itemStyle}>
+        <span style={labelStyle}>Diesen Monat:</span>
+        <span style={numStyle}>{fmt(month)}</span>
       </div>
-      <div className={s.item}>
-        <span className={s.label}>Heute:</span>
-        <span className={s.num}>{fmt(day)}</span>
+      <div style={itemStyle}>
+        <span style={labelStyle}>Heute:</span>
+        <span style={numStyle}>{fmt(day)}</span>
       </div>
-      <div className={s.item}>
-        <span className={s.label}>Online:</span>
-        <span className={s.num}>{fmt(online)}</span>
+      <div style={itemStyle}>
+        <span style={labelStyle}>Online:</span>
+        <span style={numStyle}>{fmt(online)}</span>
       </div>
     </div>
   )
