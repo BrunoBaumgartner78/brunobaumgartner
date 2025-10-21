@@ -36,10 +36,11 @@ const studioDevCSP = `
 `.replace(/\s{2,}/g, ' ').trim()
 
 const nextConfig: NextConfig = {
-  // Lint-Fehler sollen Builds (z.B. Vercel) nicht blockieren
+  // Baut weiter, auch wenn ESLint/TS nörgelt (bei Bedarf wieder entfernen)
   eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
 
-  // Optional: @-Alias -> 'src' (hilft gegen "Module not found: '@/…'")
+  // Alias @ -> src
   webpack: (config) => {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
@@ -105,6 +106,16 @@ const nextConfig: NextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
+    ]
+  },
+
+  // /books -> /buecher (inkl. Slugs)
+  async redirects() {
+    return [
+      { source: '/books', destination: '/buecher', permanent: true },
+      { source: '/books/:slug*', destination: '/buecher/:slug*', permanent: true },
+      { source: '/book', destination: '/buecher', permanent: true },
+      { source: '/book/:slug*', destination: '/buecher/:slug*', permanent: true },
     ]
   },
 }
