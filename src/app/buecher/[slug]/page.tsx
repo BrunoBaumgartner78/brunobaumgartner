@@ -1,237 +1,183 @@
 // src/app/buecher/[slug]/page.tsx
+import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getBook, getBookSlugs } from '@/lib/queries'
 import { urlFor } from '@/lib/sanity.image'
-import { PortableText } from '@portabletext/react'
 
 export const revalidate = 600
-export const dynamic = 'force-static'
 
-// ---- Static params for SSG ----
 export async function generateStaticParams() {
   const slugs = await getBookSlugs()
-  return slugs.map((s) => ({ slug: s.slug }))
+  return slugs?.map((s: { slug: string }) => ({ slug: s.slug })) ?? []
 }
 
-// ---- SEO ----
-type PageProps = { params: Promise<{ slug: string }> }
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> }
+): Promise<Metadata> {
   const { slug } = await params
   const book = await getBook(slug)
-  if (!book) return { title: 'Buch nicht gefunden' }
-
-  const title = book.title + (book.subtitle ? ` – ${book.subtitle}` : '')
-  const description = book.description || undefined
-  const ogImage =
-    book.cover ? urlFor(book.cover).width(1200).height(630).fit('crop').url() : '/og.png'
+  const title = book?.title ? `${book.title} – Buch` : 'Buch'
+  const desc = book?.description?.slice(0, 160)
+  const og = book?.cover
+    ? [urlFor(book.cover).width(1200).height(630).fit('crop').url()]
+    : undefined
 
   return {
     title,
-    description,
+    description: desc,
+    openGraph: { title, description: desc, images: og },
     alternates: { canonical: `/buecher/${slug}` },
-    openGraph: { type: 'article', title, description, images: ogImage ? [ogImage] : undefined },
-    twitter: { card: 'summary_large_image', images: ogImage ? [ogImage] : undefined },
   }
 }
 
-export default async function BookPage({ params }: PageProps) {
+export default async function BookPage(
+  { params }: { params: Promise<{ slug: string }> }
+) {
   const { slug } = await params
   const book = await getBook(slug)
-  if (!book) notFound()
+  if (!book) return notFound()
 
-  const {
-    title,
-    subtitle,
-    year,
-    pages,
-    isbn,
-    language,
-    publisher,
-    description,      // kurz (nur hier im Hero – einmalig)
-    longDescription,  // lang (unten als PortableText)
-    buyLinks,
-    cover,
-    tags,
-    shopUrl,          // NUR dieser Link wird für "Zum Shop" genutzt
-  } = book as any
+  const imgSrc = book.cover
+    ? urlFor(book.cover).width(1200).height(1600).fit('min').quality(80).url()
+    : null
 
-  const isExternal = (url: string) => /^https?:\/\//i.test(url)
+  const shopUrl: string | undefined =
+    book.shopUrl ||
+    book.buyLinks?.find((b: any) => !!b?.url)?.url
 
   return (
-    <div className="wrap site-main" style={{ display: 'grid', gap: '2rem' }}>
-      {/* ===== Hero ===== */}
-      <section aria-labelledby="book-title" style={{ display: 'grid', gap: '1.25rem' }}>
-        <div
-          className="card"
-          style={{
-            display: 'grid',
-            gap: '1.25rem',
-            border: '1px solid var(--color-border, #e5e7eb)',
-            borderRadius: 14,
-            padding: 16,
-            background: 'var(--card-bg, #fff)',
-          }}
-        >
-          <div
-            style={{
-              display: 'grid',
-              gap: 16,
-              gridTemplateColumns: '160px 1fr',
-              alignItems: 'start',
-            }}
-          >
-            {/* Cover */}
-            <div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              {cover ? (
-                <img
-                  src={urlFor(cover).width(800).height(1100).fit('fill').url()}
-                  alt={cover.alt || title}
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    borderRadius: 10,
-                    objectFit: 'cover',
-                    boxShadow: '0 4px 24px rgba(0,0,0,.08)',
-                  }}
-                  loading="eager"
-                />
-              ) : (
-                <div
-                  style={{
-                    width: '100%',
-                    aspectRatio: '3/4',
-                    borderRadius: 10,
-                    background: '#f3f4f6',
-                    display: 'grid',
-                    placeItems: 'center',
-                    color: '#9ca3af',
-                    fontSize: 12,
-                  }}
-                >
-                  Kein Cover
-                </div>
-              )}
+    <article className="wrap grid gap-6 md:gap-10">
+      {/* Breadcrumb */}
+      <nav aria-label="Breadcrumb" className="text-sm opacity-75">
+        <Link href="/buecher" className="underline hover:no-underline">
+          Bücher
+        </Link>
+        <span aria-hidden="true"> / </span>
+        <span>{book.title}</span>
+      </nav>
+
+      {/* Titelbereich */}
+      <header className="grid gap-2">
+        <h1 className="h1 m-0">{book.title}</h1>
+        {book.subtitle && (
+          <p className="text-muted m-0">{book.subtitle}</p>
+        )}
+
+        {/* Meta-Zeile */}
+        <p className="m-0 text-sm opacity-75 flex flex-wrap gap-x-4 gap-y-1">
+          {book.year && <span>Jahr: {book.year}</span>}
+          {book.pages && <span>Seiten: {book.pages}</span>}
+          {book.isbn && <span>ISBN: {book.isbn}</span>}
+          {book.publisher && <span>Verlag: {book.publisher}</span>}
+          {book.language && <span>Sprache: {book.language}</span>}
+        </p>
+      </header>
+
+      {/* 2-Spalten Layout (mobil: untereinander) */}
+      <section className="grid gap-6 md:grid-cols-2 items-start">
+        {/* Cover */}
+        <div className="w-full">
+          {imgSrc ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imgSrc}
+              alt={book.cover?.alt || book.title}
+              className="block w-full h-auto rounded-xl shadow-sm border object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="aspect-[3/4] w-full rounded-xl border grid place-items-center text-sm opacity-60">
+              Kein Cover vorhanden
             </div>
+          )}
+        </div>
 
-            {/* Titel, Meta & Kurzbeschreibung */}
-            <div style={{ display: 'grid', gap: 8 }}>
-              <h1 id="book-title" style={{ margin: 0, lineHeight: 1.2 }}>{title}</h1>
-              {subtitle && <p style={{ margin: 0, opacity: 0.8, fontSize: 16 }}>{subtitle}</p>}
-
-              {/* Meta-Chips */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
-                {year && <Chip label={String(year)} />}
-                {pages && <Chip label={`${pages} Seiten`} />}
-                {language && <Chip label={language} />}
-                {publisher && <Chip label={publisher} />}
-                {isbn && <Chip label={`ISBN ${isbn}`} />}
-              </div>
-
-              {/* Kurzbeschreibung – EINMALIG hier */}
-              {description && (
-                <p style={{ marginTop: 12, fontSize: 15, lineHeight: 1.6 }}>{description}</p>
-              )}
-
-              {/* Kauf-Links + (nur) Sanity-Shoplink */}
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 8 }}>
-                {Array.isArray(buyLinks) &&
-                  buyLinks.map((b: any, i: number) =>
-                    b?.url ? (
-                      <a
-                        key={`${b.url}-${i}`}
-                        href={b.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          fontSize: 14,
-                          border: '1px solid var(--color-border, #e5e7eb)',
-                          borderRadius: 999,
-                          padding: '8px 12px',
-                          textDecoration: 'none',
-                          background: 'var(--btn-bg, #111827)',
-                          color: '#fff',
-                        }}
-                        aria-label={b.label ? `Kaufen: ${b.label}` : 'Kaufen'}
-                      >
-                        {b.label || 'Kaufen'}
-                      </a>
-                    ) : null
-                  )}
-
-                {/* Zum Shop – nur wenn in Sanity gesetzt */}
-                {shopUrl && (
-                  <a
-                    href={shopUrl}
-                    {...(isExternal(shopUrl)
-                      ? { target: '_blank', rel: 'noopener noreferrer' }
-                      : {})}
-                    style={{
-                      fontSize: 14,
-                      border: '1px solid var(--color-border, #e5e7eb)',
-                      borderRadius: 999,
-                      padding: '8px 12px',
-                      textDecoration: 'none',
-                      background: '#fff',
-                      color: 'var(--text, #111827)',
-                    }}
-                    aria-label="Zum Shop"
-                  >
-                    Zum Shop
-                  </a>
-                )}
-              </div>
+        {/* Text + Aktionen */}
+        <div className="grid gap-5">
+          {/* Beschreibung – genau einmal */}
+          {book.description && (
+            <div className="prose max-w-none">
+              <p>{book.description}</p>
             </div>
+          )}
+
+          {/* Shop / CTA */}
+          <div className="flex flex-wrap gap-3">
+            {shopUrl && (
+              <a
+                href={shopUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center rounded-md px-4 py-2 border bg-black text-white hover:bg-neutral-800 transition"
+              >
+                Zum Shop
+              </a>
+            )}
+            {/* Optionale zusätzliche Händler */}
+            {Array.isArray(book.buyLinks) && book.buyLinks.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {book.buyLinks
+                  .filter((b: any) => b?.url && (!shopUrl || b.url !== shopUrl))
+                  .map((b: any) => (
+                    <a
+                      key={`${b.label}-${b.url}`}
+                      href={b.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center rounded-md px-3 py-1.5 border hover:bg-neutral-50 transition"
+                    >
+                      {b.label || 'Weitere Händler'}
+                    </a>
+                  ))}
+              </div>
+            )}
           </div>
 
           {/* Tags */}
-          {!!(tags && tags.length) && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {tags.map((t: string, i: number) => (
-                <span
-                  key={`${t}-${i}`}
-                  style={{
-                    fontSize: 12,
-                    padding: '6px 10px',
-                    borderRadius: 999,
-                    border: '1px solid var(--color-border, #e5e7eb)',
-                    background: '#fafafa',
-                  }}
+          {Array.isArray(book.tags) && book.tags.length > 0 && (
+            <ul className="flex flex-wrap gap-2 m-0 p-0 list-none">
+              {book.tags.map((t: string) => (
+                <li
+                  key={t}
+                  className="text-xs rounded-full px-2 py-1 border bg-neutral-50"
                 >
                   {t}
-                </span>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </div>
       </section>
 
-      {/* ===== Über das Buch (nur wenn longDescription vorhanden) ===== */}
-      {longDescription && Array.isArray(longDescription) && longDescription.length > 0 && (
-        <section aria-labelledby="about" style={{ display: 'grid', gap: '0.75rem' }}>
-          <h2 id="about" style={{ fontSize: '1.25rem', margin: 0 }}>Über das Buch</h2>
-          <PortableText value={longDescription} />
-        </section>
-      )}
-    </div>
-  )
-}
-
-// Kleine Hilfskomponente für Meta-Chips
-function Chip({ label }: { label: string }) {
-  return (
-    <span
-      style={{
-        fontSize: 12,
-        padding: '6px 10px',
-        borderRadius: 999,
-        border: '1px solid var(--color-border, #e5e7eb)',
-        background: '#fafafa',
-      }}
-    >
-      {label}
-    </span>
+      {/* Strukturierte Daten */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Book',
+            name: book.title,
+            url: `/buecher/${book.slug}`,
+            image: imgSrc || undefined,
+            isbn: book.isbn || undefined,
+            inLanguage: book.language || undefined,
+            numberOfPages: book.pages || undefined,
+            datePublished: book.year || undefined,
+            publisher: book.publisher
+              ? { '@type': 'Organization', name: book.publisher }
+              : undefined,
+            offers: shopUrl
+              ? {
+                  '@type': 'Offer',
+                  url: shopUrl,
+                  availability: 'https://schema.org/InStock',
+                }
+              : undefined,
+            description: book.description || undefined,
+          }),
+        }}
+      />
+    </article>
   )
 }
