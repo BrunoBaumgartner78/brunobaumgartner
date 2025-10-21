@@ -71,7 +71,7 @@ export default function Footer() {
             flexWrap: 'wrap',
             alignItems: 'center',
             gap: '0.75rem 1rem',
-            minWidth: 260,
+            minWidth: 0, // wichtig: kein starres Minimum
           }}
         >
           <span style={{ opacity: 0.8, whiteSpace: 'nowrap' }}>
@@ -102,11 +102,12 @@ export default function Footer() {
           </nav>
         </div>
 
-        {/* Mitte: Metrics (extra Platz für große Zahlen) */}
+        {/* Mitte: Metrics – volle Zeile auf klein, zentriert */}
         <div
           style={{
-            flex: '1 1 420px',
-            minWidth: 420,            // mehr Platz, damit große Zahlen nicht drücken
+            flex: '1 1 100%',
+            width: '100%',
+            minWidth: 0,
             display: 'flex',
             justifyContent: 'center',
           }}
@@ -114,18 +115,18 @@ export default function Footer() {
           <MetricsWidget />
         </div>
 
-        {/* Rechts: Social */}
+        {/* Rechts: Socials */}
         <div
           aria-label="Social Media"
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '0.6rem',
-            minWidth: 260,
+            minWidth: 0,
             justifyContent: 'flex-end',
           }}
         >
-          {/* RSS immer verfügbar */}
+          {/* RSS */}
           <Link href={RSS} className="no-underline hover:underline" aria-label="RSS-Feed">
             <Icon title="RSS">
               <path d="M6.18 17.82a2.18 2.18 0 1 1 0-4.36 2.18 2.18 0 0 1 0 4.36zM4 4.75A15.25 15.25 0 0 1 19.25 20h-3A12.25 12.25 0 0 0 4 7.75v-3zM4 10.5A9.5 9.5 0 0 1 13.5 20h-3A6.5 6.5 0 0 0 4 13.5v-3z" />

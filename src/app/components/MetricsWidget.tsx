@@ -21,21 +21,22 @@ function toNum(v: unknown) {
   return 0
 }
 
+// im MetricsWidget: gridStyle
 const gridStyle: React.CSSProperties = {
   display: 'grid',
   gap: '0.75rem',
   fontSize: '0.9rem',
   opacity: 0.9,
-  // responsiv: 1..n Spalten, mindestens ~22rem breit
-  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 22rem), 1fr))',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(0, 1fr))', // <- kein min-width
 }
+
 
 const itemStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'baseline',
   justifyContent: 'space-between',
   gap: '0.5rem',
-  minWidth: 0, // Schrumpfen innerhalb des Grids erlauben
+  minWidth: 0,// Schrumpfen innerhalb des Grids erlauben
 }
 
 const labelStyle: React.CSSProperties = {
