@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { PortableText } from '@portabletext/react'
-import { getPostBySlug, getAllPosts } from '../../lib/queries'     // ggf. ../../../lib/queries
-import { urlFor } from '../../lib/sanity.image'                    // ggf. ../../../lib/sanity.image
+import { getPostBySlug, getAllPosts } from '../../../lib/queries'     // ggf. ../../../lib/queries
+import { urlFor } from '../../../lib/sanity.image'                    // ggf. ../../../lib/sanity.image
 
 export const revalidate = 300
 type Params = { slug: string }

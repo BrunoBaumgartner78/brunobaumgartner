@@ -4,8 +4,8 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
 // Verwende RELATIVE Importe, um Alias-Probleme zu vermeiden:
-import { getGalleryItem, getGallerySlugs } from '../../lib/queries'
-import { urlFor } from '../../lib/sanity.image'
+import { getGalleryItem, getGallerySlugs } from '../../../lib/queries'
+import { urlFor } from '../../../lib/sanity.image'
 
 export const revalidate = 300
 

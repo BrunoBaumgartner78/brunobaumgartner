@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { getRecentPosts, getGallery, getBooks } from './lib/queries'       // ggf. ../lib/queries
-import { urlFor } from './lib/sanity.image'                                // ggf. ../lib/sanity.image
+import { getRecentPosts, getGallery, getBooks } from '../lib/queries'       // ggf. ../lib/queries
+import { urlFor } from '../lib/sanity.image'                                // ggf. ../lib/sanity.image
 import BooksStrip from './components/BooksStrip'                            // falls anderer Pfad: anpassen
 
 export const revalidate = 300

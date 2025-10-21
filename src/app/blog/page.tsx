@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { getAllPosts } from '../lib/queries' // alternativ: '../../lib/queries'
-import { urlFor } from '../lib/sanity.image' // alternativ: '../../lib/sanity.image'
+import { getAllPosts } from '../../lib/queries' // alternativ: '../../lib/queries'
+import { urlFor } from '../../lib/sanity.image' // alternativ: '../../lib/sanity.image'
 
 export const revalidate = 600
 

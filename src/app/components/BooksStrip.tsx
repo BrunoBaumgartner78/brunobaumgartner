@@ -1,7 +1,7 @@
 // src/app/components/BookStrip.tsx
 import Link from 'next/link'
-import { urlFor } from '../lib/sanity.image'
-import type { Book } from '../lib/queries'
+import { urlFor } from '../../lib/sanity.image'
+import type { Book } from '../../lib/queries'
 
 type Props = { books: Book[] }
 

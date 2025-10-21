@@ -5,7 +5,7 @@
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 import { PortableText, PortableTextComponents } from '@portabletext/react'
 import Image from 'next/image'
-import { urlFor } from '@/app/lib/sanity.image'
+import { urlFor } from '@/lib/sanity.image'
 
 
 const components: PortableTextComponents = {

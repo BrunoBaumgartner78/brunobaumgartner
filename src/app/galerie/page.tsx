@@ -1,7 +1,7 @@
 ﻿// src/app/galerie/page.tsx
 import Link from 'next/link'
-import { getGallery } from '../lib/queries'
-import { urlFor } from '../lib/sanity.image'
+import { getGallery } from '../../lib/queries'
+import { urlFor } from '../../lib/sanity.image'
 
 export const revalidate = 600
 

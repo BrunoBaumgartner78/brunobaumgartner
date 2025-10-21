@@ -1,43 +1,35 @@
 import Link from 'next/link'
-import { getAllBooks } from '@/lib/queries'
-import { urlFor } from '@/lib/sanity.image'
+import { getAllBooks } from '../../lib/queries'
+import { urlFor } from '../../lib/sanity.image'
 
 export const revalidate = 600
 
-export default async function BooksIndex() {
-  const books = await getAllBooks()
+export default async function BooksPage() {
+  const books = await getAllBooks().catch(() => [])
   return (
-    <div className="wrap site-main" style={{ display: 'grid', gap: '1.5rem' }}>
-      <h1 style={{ fontSize: '1.75rem' }}>Bücher</h1>
-      <ul
-        style={{
-          listStyle: 'none', padding: 0,
-          display: 'grid', gap: '1.25rem',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        }}
-      >
+    <section className="wrap grid gap-6" aria-labelledby="t">
+      <h1 id="t" className="h1">Bücher</h1>
+
+      {!books?.length && <p className="text-muted">Noch keine Bücher veröffentlicht.</p>}
+
+      <ul className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
         {books.map((b) => (
-          <li key={b._id} className="card" style={{ border: '1px solid var(--color-border,#e5e7eb)', borderRadius: 12, padding: 16 }}>
-            <Link href={`/buecher/${b.slug}`} className="no-underline">
+          <li key={b._id} className="card p-3">
+            <Link href={`/buecher/${b.slug}`} className="block no-underline hover:underline">
               {b.cover && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={urlFor(b.cover).width(720).height(1080).fit('cover').url()}
-                  alt={b.cover.alt || b.title}
-                  style={{ width: '100%', height: 'auto', borderRadius: 10, marginBottom: 8 }}
+                  src={urlFor(b.cover).width(600).height(900).fit('crop').url()}
+                  alt={b.title}
+                  className="w-full h-auto rounded mb-2"
                   loading="lazy"
                 />
               )}
-              <h2 style={{ fontSize: '1.125rem', margin: '0 0 4px' }}>{b.title}</h2>
-              {b.publishedAt && (
-                <p style={{ margin: 0, fontSize: 12, opacity: 0.7 }}>
-                  {new Date(b.publishedAt).toLocaleDateString('de-CH')}
-                </p>
-              )}
+              <div className="text-sm font-medium">{b.title}</div>
             </Link>
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   )
 }
