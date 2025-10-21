@@ -23,7 +23,7 @@ export default function Header() {
           className="no-underline hover:underline"
           aria-label="Startseite Bruno Baumgartner"
         >
-          <strong>Bruno Baumgartner</strong>
+          <strong>🌳Bruno Baumgartner</strong>
         </Link>
 
         <nav aria-label="Hauptnavigation">
@@ -51,6 +51,12 @@ export default function Header() {
                 Galerie
               </Link>
             </li>
+            <li>
+  <Link className="underline hover:no-underline" href="/gaestebuch">
+    Gästebuch
+  </Link>
+</li>
+
           </ul>
         </nav>
       </div>

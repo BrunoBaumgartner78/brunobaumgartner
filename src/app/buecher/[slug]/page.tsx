@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getBook, getBookSlugs } from '@/lib/queries'
 import { urlFor } from '@/lib/sanity.image'
+import { absUrl, SITE_TAGLINE } from '@/lib/seo'
 import s from './page.module.css'
 
 export const revalidate = 600
@@ -19,26 +20,32 @@ export async function generateMetadata(
   const { slug } = await params
   const book = await getBook(slug)
 
-  const title = book?.title ? `${book.title} – Buch` : 'Buch'
+  const pageTitle = book?.title ? `${book.title} – Buch` : 'Buch'
   const desc =
     (book?.description && String(book.description).slice(0, 160)) || undefined
 
-  const ogImg =
-    book?.cover
-      ? [
-          urlFor(book.cover)
-            .width(1200)
-            .height(630)
-            .fit('crop')
-            .quality(85)
-            .url(),
-        ]
-      : undefined
+  // Einheitliches sandfarbenes OG + Tagline (immer gleich – unabhängig vom Cover)
+  const ogUrl = absUrl(
+    `/og?title=${encodeURIComponent(book?.title || 'Buch')}` +
+    `&subtitle=${encodeURIComponent(SITE_TAGLINE)}`
+  )
 
   return {
-    title,
+    title: pageTitle,
     description: desc,
-    openGraph: { title, description: desc, images: ogImg },
+    openGraph: {
+      type: 'article',
+      url: absUrl(`/buecher/${slug}`),
+      title: pageTitle,
+      description: desc,
+      images: [{ url: ogUrl, width: 1200, height: 630, alt: `${book?.title || 'Buch'} – Brainbloom` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: pageTitle,
+      description: desc,
+      images: [ogUrl],
+    },
     alternates: { canonical: `/buecher/${slug}` },
   }
 }
@@ -54,11 +61,11 @@ export default async function BookPage(
     ? urlFor(book.cover).width(900).height(1200).fit('min').quality(80).url()
     : null
 
-  // Shop-Link aus Sanity mit Fallbacks
+  // Shop-Link aus Sanity mit Fallbacks (buyUrl, shopUrl oder erster buyLink)
   const shopUrl: string | undefined =
-    (book as any).buyUrl ||
-    (book as any).shopUrl ||
-    book.buyLinks?.find((b: any) => !!b?.url)?.url
+    (book as any)?.buyUrl ||
+    (book as any)?.shopUrl ||
+    (Array.isArray(book.buyLinks) ? book.buyLinks.find((b: any) => !!b?.url)?.url : undefined)
 
   return (
     <article className={`wrap ${s.page}`}>
@@ -75,7 +82,7 @@ export default async function BookPage(
         {book.subtitle && <p className={s.subtitle}>{book.subtitle}</p>}
       </header>
 
-      {/* Detail – responsive: mobil gestapelt, ab md nebeneinander */}
+      {/* Detail – mobil gestapelt, ab md nebeneinander (Bild bewusst schmal) */}
       <section className={s.detail}>
         {/* Cover */}
         <div className={s.cover}>
@@ -93,7 +100,7 @@ export default async function BookPage(
 
         {/* Text & Aktionen */}
         <div className={s.content}>
-          {/* Kurzbeschreibung (einmalig) */}
+          {/* Kurzbeschreibung – genau einmal */}
           {book.description && <p className={s.desc}>{book.description}</p>}
 
           {/* CTA */}
@@ -136,36 +143,11 @@ export default async function BookPage(
             book.pages ||
             book.language) && (
             <dl className={s.meta}>
-              {book.isbn && (
-                <>
-                  <dt>ISBN</dt>
-                  <dd>{book.isbn}</dd>
-                </>
-              )}
-              {book.publisher && (
-                <>
-                  <dt>Verlag</dt>
-                  <dd>{book.publisher}</dd>
-                </>
-              )}
-              {book.year && (
-                <>
-                  <dt>Jahr</dt>
-                  <dd>{book.year}</dd>
-                </>
-              )}
-              {book.pages && (
-                <>
-                  <dt>Seiten</dt>
-                  <dd>{book.pages}</dd>
-                </>
-              )}
-              {book.language && (
-                <>
-                  <dt>Sprache</dt>
-                  <dd>{book.language}</dd>
-                </>
-              )}
+              {book.isbn && (<><dt>ISBN</dt><dd>{book.isbn}</dd></>)}
+              {book.publisher && (<><dt>Verlag</dt><dd>{book.publisher}</dd></>)}
+              {book.year && (<><dt>Jahr</dt><dd>{book.year}</dd></>)}
+              {book.pages && (<><dt>Seiten</dt><dd>{book.pages}</dd></>)}
+              {book.language && (<><dt>Sprache</dt><dd>{book.language}</dd></>)}
             </dl>
           )}
 
@@ -173,17 +155,13 @@ export default async function BookPage(
           {Array.isArray(book.tags) && book.tags.length > 0 && (
             <ul className={s.tags}>
               {book.tags.map((t: string) => (
-                <li key={t} className={s.tag}>
-                  {t}
-                </li>
+                <li key={t} className={s.tag}>{t}</li>
               ))}
             </ul>
           )}
 
           <div className={s.back}>
-            <Link href="/buecher" className={s.link}>
-              ← Zur Übersicht
-            </Link>
+            <Link href="/buecher" className={s.link}>← Zur Übersicht</Link>
           </div>
         </div>
       </section>
@@ -196,7 +174,7 @@ export default async function BookPage(
             '@context': 'https://schema.org',
             '@type': 'Book',
             name: book.title,
-            url: `/buecher/${book.slug}`,
+            url: absUrl(`/buecher/${book.slug}`),       // absolute URL
             image: imgSrc || undefined,
             isbn: book.isbn || undefined,
             inLanguage: book.language || undefined,
@@ -206,11 +184,7 @@ export default async function BookPage(
               ? { '@type': 'Organization', name: book.publisher }
               : undefined,
             offers: shopUrl
-              ? {
-                  '@type': 'Offer',
-                  url: shopUrl,
-                  availability: 'https://schema.org/InStock',
-                }
+              ? { '@type': 'Offer', url: shopUrl, availability: 'https://schema.org/InStock' }
               : undefined,
             description: book.description || undefined,
           }),

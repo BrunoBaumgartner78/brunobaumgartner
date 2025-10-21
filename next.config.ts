@@ -15,6 +15,8 @@ const baseCSP = `
     https://www.google-analytics.com https://*.google-analytics.com https://region1.google-analytics.com
     https://www.googletagmanager.com https://*.googletagmanager.com
     https://vitals.vercel-insights.com
+    https://*.upstash.io
+
     ${isDev ? 'ws:' : ''};
   img-src 'self' data: blob: https://cdn.sanity.io https://*.sanity.io https://www.google-analytics.com https://www.googletagmanager.com;
   style-src 'self' 'unsafe-inline';

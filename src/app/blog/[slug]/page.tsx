@@ -1,8 +1,9 @@
+// src/app/blog/[slug]/page.tsx
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { PortableText } from '@portabletext/react'
 import { getPostBySlug, getAllPosts } from '@/lib/queries'
-import { urlFor } from '@/lib/sanity.image'
+import { absUrl, ogTemplate } from '@/lib/seo'
 
 // Next 15: params als Promise typisieren
 type Params = { slug: string }
@@ -11,7 +12,7 @@ export const revalidate = 300
 
 export async function generateStaticParams() {
   const posts = await getAllPosts()
-  return posts.map(p => ({ slug: p.slug }))
+  return posts.map((p: { slug: string }) => ({ slug: p.slug }))
 }
 
 export default async function BlogPostPage(
@@ -21,29 +22,34 @@ export default async function BlogPostPage(
   const post = await getPostBySlug(slug)
   if (!post) return notFound()
 
-  const og = post.mainImage
-    ? urlFor(post.mainImage).width(1200).height(630).fit('crop').url()
-    : undefined
-
   return (
     <article className="wrap grid gap-6" aria-labelledby="t">
       <header className="grid gap-2">
         <h1 id="t" className="h1" style={{ margin: 0 }}>{post.title}</h1>
+
         {post.publishedAt && (
           <p className="text-muted" style={{ margin: 0 }}>
             {new Date(post.publishedAt).toLocaleDateString('de-CH')}
           </p>
         )}
+
         {post.excerpt && (
           <p style={{ margin: 0, maxWidth: 820 }}>{post.excerpt}</p>
         )}
       </header>
 
+      {/* Hauptbild (optional). Für OG verwenden wir unten bewusst das Brand-OG. */}
       {post.mainImage && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={urlFor(post.mainImage).width(1280).height(720).fit('crop').url()}
-          alt={post.mainImage.alt || post.title}
+          src={
+            // 1280×720 für Content-Ansicht, nicht OG
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore – urlFor wird projektweit bereitgestellt
+            (await import('@/lib/sanity.image')).urlFor(post.mainImage)
+              .width(1280).height(720).fit('crop').url()
+          }
+          alt={post.mainImage?.alt || post.title}
           style={{ width: '100%', height: 'auto', borderRadius: 12 }}
           loading="lazy"
         />
@@ -61,11 +67,12 @@ export default async function BlogPostPage(
             '@context': 'https://schema.org',
             '@type': 'BlogPosting',
             headline: post.title,
-            datePublished: post.publishedAt,
-            description: post.excerpt || '',
-            image: og,
+            datePublished: post.publishedAt || undefined,
+            description: post.excerpt || undefined,
+            // Einheitliches Brand-OG mit Claim:
+            image: ogTemplate(post.title),
             author: { '@type': 'Person', name: 'Bruno Baumgartner' },
-            mainEntityOfPage: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://brainbloom.ch'}/blog/${post.slug}`,
+            mainEntityOfPage: absUrl(`/blog/${post.slug}`),
           }),
         }}
       />
@@ -78,22 +85,34 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = await params
   const post = await getPostBySlug(slug)
-  if (!post) return { title: 'Beitrag nicht gefunden' }
+  if (!post) {
+    return {
+      title: 'Beitrag nicht gefunden',
+      robots: { index: false, follow: false },
+    }
+  }
 
-  const og = post.mainImage
-    ? urlFor(post.mainImage).width(1200).height(630).fit('crop').url()
-    : undefined
+  const title = post.title
+  const description = post.excerpt || undefined
+  const canonical = `/blog/${post.slug}`
+  const og = ogTemplate(post.title) // sandfarbener Hintergrund + Claim
 
   return {
-    title: post.title,
-    description: post.excerpt || undefined,
-    alternates: { canonical: `/blog/${post.slug}` },
+    title,
+    description,
+    alternates: { canonical },
     openGraph: {
       type: 'article',
-      url: `/blog/${post.slug}`,
-      title: post.title,
-      description: post.excerpt || undefined,
-      images: og ? [og] : undefined,
+      url: absUrl(canonical),
+      title,
+      description,
+      images: [{ url: og, width: 1200, height: 630, alt: `${title} – Brainbloom` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [og],
     },
   }
 }

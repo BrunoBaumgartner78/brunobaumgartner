@@ -1,10 +1,16 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next'
-import { SITE_URL, absUrl, DEFAULT_OG } from '@/lib/seo'
+import { SITE_URL, absUrl, SITE_TAGLINE } from '@/lib/seo'
 import Header from '@/app/components/Header'
 import Footer from '@/app/components/Footer'
 import MetricsBeacon from './components/MeticsBeacon'
 import './base.css'
+
+// Einheitliches OG-Bild (sandfarben) mit Tagline aus seo.ts
+const DEFAULT_OG_URL = absUrl(
+  `/og?title=${encodeURIComponent('Bruno Baumgartner – Autor')}` +
+  `&subtitle=${encodeURIComponent(SITE_TAGLINE)}`
+)
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -12,15 +18,14 @@ export const metadata: Metadata = {
     default: 'Bruno Baumgartner – Autor',
     template: '%s | Bruno Baumgartner',
   },
+  description:
+    'Offizielle Seite von Bruno Baumgartner: Blog, Texte und Einblicke in Arbeit, Themen und Projekte.',
   alternates: {
     canonical: '/',
     types: {
       'application/rss+xml': [{ url: '/feed.xml', title: 'Brainbloom RSS' }],
     },
   },
-  description:
-    'Offizielle Seite von Bruno Baumgartner: Blog, Texte und Einblicke in Arbeit, Themen und Projekte.',
-  alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     siteName: 'Brainbloom',
@@ -28,17 +33,13 @@ export const metadata: Metadata = {
     title: 'Bruno Baumgartner – Autor',
     description:
       'Texte, Blog und Einblicke von Bruno Baumgartner. Minimal, schnell und zugänglich.',
-    images: [
-      {
-        url: absUrl(DEFAULT_OG.url),
-        width: DEFAULT_OG.width,
-        height: DEFAULT_OG.height,
-        alt: DEFAULT_OG.alt,
-      },
-    ],
+    images: [DEFAULT_OG_URL],
     locale: 'de_CH',
   },
-  twitter: { card: 'summary_large_image', images: [absUrl(DEFAULT_OG.url)] },
+  twitter: {
+    card: 'summary_large_image',
+    images: [DEFAULT_OG_URL],
+  },
   robots: { index: true, follow: true },
 }
 
@@ -57,7 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         <main id="hauptinhalt">{children}</main>
         <Footer />
-         <MetricsBeacon />
+        <MetricsBeacon />
       </body>
     </html>
   )
