@@ -1,65 +1,83 @@
-// src/app/sitemap.xml/route.ts
-import { NextResponse } from 'next/server'
-import groq from 'groq'
-import { sanityClient } from '@/lib/sanity.client'
+// app/sitemap.xml/route.ts
+import { NextRequest } from 'next/server'
+import { getAllPosts, getAllBooks, getGallery } from '../lib/queries'
 
-export const revalidate = 600
+export const revalidate = 600 // 10 Minuten
+export const dynamic = 'force-static'
 
-export async function GET() {
-  const site = process.env.NEXT_PUBLIC_SITE_URL || 'https://brainbloom.ch'
+type UrlItem = {
+  loc: string
+  lastmod?: string | Date
+}
 
-  const urls: Array<{ loc: string; lastmod?: string }> = []
+export async function GET(_req: NextRequest) {
+  const site =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') ||
+    'https://brunobaumgartner.vercel.app'
 
-  try {
-    const posts = await sanityClient.fetch<Array<{ slug: { current: string }, _updatedAt?: string }>>(
-      groq`*[_type == "post" && defined(slug.current)]{ "slug": slug, _updatedAt }`
-    )
-    posts?.forEach(p => {
-      if (p?.slug?.current) {
-        urls.push({ loc: `${site}/blog/${p.slug.current}`, lastmod: p._updatedAt })
-      }
+  // Content laden
+  const [posts, books, gallery] = await Promise.all([
+    getAllPosts().catch(() => [] as any[]),
+    getAllBooks?.().catch?.(() => [] as any[]) ?? Promise.resolve([] as any[]),
+    // Wenn du ALLE Galerie-Elemente willst, gib es als eigenen Query;
+    // hier holen wir "viele", damit was drin ist:
+    getGallery(100).catch(() => [] as any[]),
+  ])
+
+  // Grundseiten
+  const urls: UrlItem[] = [
+    { loc: `${site}/` },
+    { loc: `${site}/blog` },
+    { loc: `${site}/buecher` },
+    { loc: `${site}/galerie` },
+    { loc: `${site}/impressum` },
+    { loc: `${site}/datenschutz` },
+  ]
+
+  // Blogposts
+  for (const p of posts ?? []) {
+    if (!p?.slug) continue
+    urls.push({
+      loc: `${site}/blog/${p.slug}`,
+      lastmod: p.publishedAt || p._updatedAt || p._createdAt,
     })
-
-    const books = await sanityClient.fetch<Array<{ slug: { current: string }, _updatedAt?: string }>>(
-      groq`*[_type == "book" && defined(slug.current)]{ "slug": slug, _updatedAt }`
-    )
-    books?.forEach(b => {
-      if (b?.slug?.current) {
-        urls.push({ loc: `${site}/buecher/${b.slug.current}`, lastmod: b._updatedAt })
-      }
-    })
-
-    const gallery = await sanityClient.fetch<Array<{ slug: { current: string }, _updatedAt?: string }>>(
-      groq`*[_type == "galleryImage" && defined(slug.current)]{ "slug": slug, _updatedAt }`
-    )
-    gallery?.forEach(g => {
-      if (g?.slug?.current) {
-        urls.push({ loc: `${site}/galerie/${g.slug.current}`, lastmod: g._updatedAt })
-      }
-    })
-  } catch (e) {
-    // Falls ENV fehlt oder Sanity down ist → wir liefern nur die statischen Routen
-    console.warn('sitemap fallback (no Sanity data):', e)
   }
 
-  const staticRoutes = ['', '/blog', '/buecher', '/galerie', '/impressum'].map(p => ({
-    loc: `${site}${p}`,
-  }))
+  // Bücher (falls Buch-Queries vorhanden)
+  for (const b of books ?? []) {
+    if (!b?.slug) continue
+    urls.push({
+      loc: `${site}/buecher/${b.slug}`,
+      lastmod: b.publishedAt || b._updatedAt || b._createdAt,
+    })
+  }
 
-  const all = [...staticRoutes, ...urls]
+  // Galerie
+  for (const g of gallery ?? []) {
+    if (!g?.slug) continue
+    urls.push({
+      loc: `${site}/galerie/${g.slug}`,
+      lastmod: g.publishedAt || g._updatedAt || g._createdAt,
+    })
+  }
 
-  const xml =
+  // XML bauen
+  const body =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-    all
-      .map(
-        u =>
-          `<url><loc>${u.loc}</loc>${u.lastmod ? `<lastmod>${new Date(u.lastmod).toISOString()}</lastmod>` : ''}</url>`
-      )
+    urls
+      .map((u) => {
+        const last =
+          u.lastmod ? `<lastmod>${new Date(u.lastmod).toISOString()}</lastmod>` : ''
+        return `<url><loc>${u.loc}</loc>${last}</url>`
+      })
       .join('\n') +
     `\n</urlset>`
 
-  return new NextResponse(xml, {
-    headers: { 'content-type': 'application/xml; charset=utf-8' },
+  return new Response(body, {
+    headers: {
+      'Content-Type': 'application/xml; charset=utf-8',
+      'Cache-Control': 's-maxage=600, stale-while-revalidate=86400',
+    },
   })
 }
