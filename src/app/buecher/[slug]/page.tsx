@@ -1,9 +1,9 @@
-// src/app/buecher/[slug]/page.tsx
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getBook, getBookSlugs } from '@/lib/queries'
 import { urlFor } from '@/lib/sanity.image'
+import s from './page.module.css'
 
 export const revalidate = 600
 
@@ -39,79 +39,55 @@ export default async function BookPage(
   if (!book) return notFound()
 
   const imgSrc = book.cover
-    ? urlFor(book.cover).width(1000).height(1400).fit('min').quality(80).url()
+    ? urlFor(book.cover).width(900).height(1200).fit('min').quality(80).url()
     : null
 
   const shopUrl: string | undefined =
     (book as any).shopUrl || book.buyLinks?.find((b: any) => !!b?.url)?.url
 
   return (
-    <article className="wrap grid gap-6 md:gap-10">
-      {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" className="text-sm opacity-75">
-        <Link href="/buecher" className="underline hover:no-underline">
-          Bücher
-        </Link>
+    <article className={`wrap ${s.page}`}>
+      <nav aria-label="Breadcrumb" className={s.crumbs}>
+        <Link href="/buecher" className={s.link}>Bücher</Link>
         <span aria-hidden="true"> / </span>
-        <span>{book.title}</span>
+        <span className={s.muted}>{book.title}</span>
       </nav>
 
-      {/* Titelbereich */}
-      <header className="grid gap-2">
-        <h1 className="h1 m-0">{book.title}</h1>
-        {book.subtitle && <p className="text-muted m-0">{book.subtitle}</p>}
-        <p className="m-0 text-sm opacity-75 flex flex-wrap gap-x-4 gap-y-1">
-          {book.year && <span>Jahr: {book.year}</span>}
-          {book.pages && <span>Seiten: {book.pages}</span>}
-          {book.isbn && <span>ISBN: {book.isbn}</span>}
-          {book.publisher && <span>Verlag: {book.publisher}</span>}
-          {book.language && <span>Sprache: {book.language}</span>}
-        </p>
+      <header className={s.head}>
+        <h1 className={s.title}>{book.title}</h1>
+        {book.subtitle && <p className={s.subtitle}>{book.subtitle}</p>}
       </header>
 
-      {/* Mobil: untereinander; ab md: Bild schmal links, Text rechts */}
-      <section className="grid gap-6 md:flex md:items-start md:gap-10">
-        {/* Cover – mobil vollbreit, ab md schmal neben Text */}
-        <div className="w-full md:w-[220px] lg:w-[260px] xl:w-[300px] md:shrink-0">
+      <section className={s.detail}>
+        <div className={s.cover}>
           {imgSrc ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={imgSrc}
-              alt={(book as any).cover?.alt || book.title}
-              className="block w-full h-auto rounded-xl shadow-sm border object-cover"
+              alt={(book as any)?.cover?.alt || book.title}
               loading="lazy"
             />
           ) : (
-            <div className="aspect-[3/4] w-full rounded-xl border grid place-items-center text-sm opacity-60">
-              Kein Cover vorhanden
-            </div>
+            <div className={s.coverFallback}>Kein Cover</div>
           )}
         </div>
 
-        {/* Text + Aktionen */}
-        <div className="grid gap-5 md:flex-1">
-          {/* Beschreibung – einmalig */}
-          {book.description && (
-            <div className="prose max-w-none">
-              <p>{book.description}</p>
-            </div>
-          )}
+        <div className={s.content}>
+          {book.description && <p className={s.desc}>{book.description}</p>}
 
-          {/* Shop / CTA */}
-          <div className="flex flex-wrap gap-3">
+          <div className={s.cta}>
             {shopUrl && (
               <a
                 href={shopUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center rounded-md px-4 py-2 border bg-black text-white hover:bg-neutral-800 transition"
-                aria-label="Zum Shop (extern)"
+                className={`${s.btn} ${s.btnPrimary}`}
               >
                 Zum Shop
               </a>
             )}
             {Array.isArray(book.buyLinks) && book.buyLinks.length > 0 && (
-              <div className="flex flex-wrap gap-2">
+              <div className={s.more}>
                 {book.buyLinks
                   .filter((b: any) => b?.url && (!shopUrl || b.url !== shopUrl))
                   .map((b: any) => (
@@ -120,8 +96,7 @@ export default async function BookPage(
                       href={b.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center rounded-md px-3 py-1.5 border hover:bg-neutral-50 transition"
-                      aria-label={`Kaufen bei ${b.label || 'weiterer Händler'} (extern)`}
+                      className={`${s.btn} ${s.btnGhost}`}
                     >
                       {b.label || 'Weitere Händler'}
                     </a>
@@ -130,23 +105,30 @@ export default async function BookPage(
             )}
           </div>
 
-          {/* Tags */}
+          {(book.isbn || book.publisher || book.year || book.pages || book.language) && (
+            <dl className={s.meta}>
+              {book.isbn && (<><dt>ISBN</dt><dd>{book.isbn}</dd></>)}
+              {book.publisher && (<><dt>Verlag</dt><dd>{book.publisher}</dd></>)}
+              {book.year && (<><dt>Jahr</dt><dd>{book.year}</dd></>)}
+              {book.pages && (<><dt>Seiten</dt><dd>{book.pages}</dd></>)}
+              {book.language && (<><dt>Sprache</dt><dd>{book.language}</dd></>)}
+            </dl>
+          )}
+
           {Array.isArray(book.tags) && book.tags.length > 0 && (
-            <ul className="flex flex-wrap gap-2 m-0 p-0 list-none">
+            <ul className={s.tags}>
               {book.tags.map((t: string) => (
-                <li
-                  key={t}
-                  className="text-xs rounded-full px-2 py-1 border bg-neutral-50"
-                >
-                  {t}
-                </li>
+                <li key={t} className={s.tag}>{t}</li>
               ))}
             </ul>
           )}
+
+          <div className={s.back}>
+            <Link href="/buecher" className={s.link}>← Zur Übersicht</Link>
+          </div>
         </div>
       </section>
 
-      {/* Strukturierte Daten */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -164,11 +146,7 @@ export default async function BookPage(
               ? { '@type': 'Organization', name: book.publisher }
               : undefined,
             offers: shopUrl
-              ? {
-                  '@type': 'Offer',
-                  url: shopUrl,
-                  availability: 'https://schema.org/InStock',
-                }
+              ? { '@type': 'Offer', url: shopUrl, availability: 'https://schema.org/InStock' }
               : undefined,
             description: book.description || undefined,
           }),
