@@ -15,10 +15,12 @@
 }
 
 .item {
-  display: flex;
+  /* Statt flex -> kleine Grid-Zelle mit rechter Zahl */
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: baseline;
-  justify-content: space-between;
   gap: 0.5rem;
+  min-width: 0;              /* wichtig: Schrumpfen erlauben */
 }
 
 .label { font-weight: 600; }
@@ -27,12 +29,17 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.3px;
   font-weight: 600;
-  text-align: right;
-  min-width: 380px;
-  white-space: nowrap;
+  justify-self: end;         /* rechtsbündig */
+  min-width: 0;              /* kein fester Mindestwert */
+  max-width: 100%;
+  white-space: nowrap;       /* keine Zeilenumbrüche */
+  overflow: hidden;          /* Überlauf kappen */
+  text-overflow: ellipsis;   /* falls extrem lang */
 }
 
+/* Optional: auf ganz schmalen Screens linke Ausrichtung ok */
 @media (max-width: 419px) {
-  .num { min-width: auto; text-align: left; }
-  .item { justify-content: flex-start; }
+  .num { justify-self: start; text-align: left; }
 }
+
+.item { grid-template-columns: 1fr minmax(10ch, 22ch); }
