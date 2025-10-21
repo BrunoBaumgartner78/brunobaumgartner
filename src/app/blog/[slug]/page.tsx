@@ -1,65 +1,59 @@
-import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { PortableText } from '@portabletext/react'
-import { getPostBySlug, getAllPosts } from '../../../lib/queries'     // ggf. ../../../lib/queries
-import { urlFor } from '../../../lib/sanity.image'                    // ggf. ../../../lib/sanity.image
+import { getPostBySlug, getAllPosts } from '@/lib/queries'
+import { urlFor } from '@/lib/sanity.image'
 
-export const revalidate = 300
+// Next 15: params als Promise typisieren
 type Params = { slug: string }
 
+export const revalidate = 300
+
 export async function generateStaticParams() {
-  const posts = await getAllPosts().catch(() => [])
-  return posts.map((p: any) => ({ slug: p.slug }))
+  const posts = await getAllPosts()
+  return posts.map(p => ({ slug: p.slug }))
 }
 
-export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const site = process.env.NEXT_PUBLIC_SITE_URL || 'https://brainbloom.ch'
-  const post = await getPostBySlug(params.slug).catch(() => null)
-  if (!post) return { title: 'Beitrag nicht gefunden', alternates: { canonical: `/blog/${params.slug}` } }
-
-  const title = post.title
-  const desc = post.excerpt || 'Blogbeitrag von Bruno Baumgartner'
-  const og = post.mainImage ? urlFor(post.mainImage).width(1200).height(630).fit('crop').url() : `${site}/og.png`
-
-  return {
-    title,
-    description: desc,
-    alternates: { canonical: `/blog/${params.slug}` },
-    openGraph: { type: 'article', url: `${site}/blog/${params.slug}`, title, description: desc, images: [{ url: og, width: 1200, height: 630, alt: title }] },
-    twitter: { card: 'summary_large_image', title, description: desc, images: [og] },
-  }
-}
-
-export default async function BlogPostPage({ params }: { params: Params }) {
-  const post = await getPostBySlug(params.slug).catch(() => null)
+export default async function BlogPostPage(
+  { params }: { params: Promise<Params> }
+) {
+  const { slug } = await params
+  const post = await getPostBySlug(slug)
   if (!post) return notFound()
 
-  const site = process.env.NEXT_PUBLIC_SITE_URL || 'https://brainbloom.ch'
-  const ogImg = post.mainImage ? urlFor(post.mainImage).width(1200).height(630).fit('crop').url() : undefined
+  const og = post.mainImage
+    ? urlFor(post.mainImage).width(1200).height(630).fit('crop').url()
+    : undefined
 
   return (
-    <article className="wrap prose" aria-labelledby="post-title">
-      <h1 id="post-title">{post.title}</h1>
-
-      {post.publishedAt && (
-        <p className="text-sm text-muted" style={{ marginTop: 0 }}>
-          {new Date(post.publishedAt).toLocaleDateString('de-CH')}
-        </p>
-      )}
+    <article className="wrap grid gap-6" aria-labelledby="t">
+      <header className="grid gap-2">
+        <h1 id="t" className="h1" style={{ margin: 0 }}>{post.title}</h1>
+        {post.publishedAt && (
+          <p className="text-muted" style={{ margin: 0 }}>
+            {new Date(post.publishedAt).toLocaleDateString('de-CH')}
+          </p>
+        )}
+        {post.excerpt && (
+          <p style={{ margin: 0, maxWidth: 820 }}>{post.excerpt}</p>
+        )}
+      </header>
 
       {post.mainImage && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={urlFor(post.mainImage).width(1200).height(600).fit('max').url()}
+          src={urlFor(post.mainImage).width(1280).height(720).fit('crop').url()}
           alt={post.mainImage.alt || post.title}
-          className="rounded-xl"
-          loading="eager"
+          style={{ width: '100%', height: 'auto', borderRadius: 12 }}
+          loading="lazy"
         />
       )}
 
-      <PortableText value={post.body || []} />
+      <div className="prose">
+        <PortableText value={post.body} />
+      </div>
 
-      {/* JSON-LD: BlogPosting */}
+      {/* JSON-LD für SEO */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -69,26 +63,37 @@ export default async function BlogPostPage({ params }: { params: Params }) {
             headline: post.title,
             datePublished: post.publishedAt,
             description: post.excerpt || '',
-            image: ogImg,
+            image: og,
             author: { '@type': 'Person', name: 'Bruno Baumgartner' },
-            mainEntityOfPage: `${site}/blog/${post.slug}`,
-          }),
-        }}
-      />
-      {/* JSON-LD: Breadcrumbs */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'BreadcrumbList',
-            itemListElement: [
-              { '@type': 'ListItem', position: 1, name: 'Blog', item: `${site}/blog` },
-              { '@type': 'ListItem', position: 2, name: post.title, item: `${site}/blog/${post.slug}` },
-            ],
+            mainEntityOfPage: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://brainbloom.ch'}/blog/${post.slug}`,
           }),
         }}
       />
     </article>
   )
+}
+
+export async function generateMetadata(
+  { params }: { params: Promise<Params> }
+): Promise<Metadata> {
+  const { slug } = await params
+  const post = await getPostBySlug(slug)
+  if (!post) return { title: 'Beitrag nicht gefunden' }
+
+  const og = post.mainImage
+    ? urlFor(post.mainImage).width(1200).height(630).fit('crop').url()
+    : undefined
+
+  return {
+    title: post.title,
+    description: post.excerpt || undefined,
+    alternates: { canonical: `/blog/${post.slug}` },
+    openGraph: {
+      type: 'article',
+      url: `/blog/${post.slug}`,
+      title: post.title,
+      description: post.excerpt || undefined,
+      images: og ? [og] : undefined,
+    },
+  }
 }
