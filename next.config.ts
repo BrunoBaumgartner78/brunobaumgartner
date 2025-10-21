@@ -1,6 +1,9 @@
-﻿import type { NextConfig } from 'next'
+﻿// next.config.ts
+import type { NextConfig } from 'next'
+
 const isDev = process.env.NODE_ENV !== 'production'
 
+// Basis-CSP (für deine gesamte Site außer /studio im DEV)
 const baseCSP = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' 'wasm-unsafe-eval'" : ''} https://www.googletagmanager.com https://www.google-analytics.com;
@@ -11,7 +14,7 @@ const baseCSP = `
   frame-ancestors 'none';
 `.replace(/\s{2,}/g, ' ').trim()
 
-// Sehr locker NUR für /studio in DEV (um Cookie/CORS-Edgecases zu vermeiden)
+// Sehr lockere CSP nur für /studio in DEV (behebt Cookie/CORS/SPA-Dev-Themen)
 const studioDevCSP = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' 'unsafe-eval';
@@ -23,17 +26,18 @@ const studioDevCSP = `
 `.replace(/\s{2,}/g, ' ').trim()
 
 const nextConfig: NextConfig = {
+  // Verhindert, dass ein fehlendes ESLint die Vercel-Builds stoppt
+  eslint: { ignoreDuringBuilds: true },
+
   async headers() {
     if (isDev) {
       return [
-        // /studio: CSP sehr locker bzw. effektiv aus
+        // /studio (nur DEV): sehr lockere CSP
         {
           source: '/studio/:path*',
-          headers: [
-            { key: 'Content-Security-Policy', value: studioDevCSP },
-          ],
+          headers: [{ key: 'Content-Security-Policy', value: studioDevCSP }],
         },
-        // Rest: deine „normale“ CSP
+        // Rest (DEV): normale CSP + Security-Header
         {
           source: '/:path*',
           headers: [
@@ -48,22 +52,27 @@ const nextConfig: NextConfig = {
       ]
     }
 
-    // Production: /studio mit whitelists statt Wildcards
+    // Production
     return [
+      // /studio (PROD): gezielte Whitelist für Sanity
       {
         source: '/studio/:path*',
         headers: [
-          { key: 'Content-Security-Policy', value: `
-            default-src 'self';
-            script-src 'self' 'unsafe-inline';
-            connect-src 'self' https://*.sanity.io https://*.api.sanity.io https://cdn.sanity.io;
-            img-src 'self' data: blob: https://cdn.sanity.io https://*.sanity.io;
-            style-src 'self' 'unsafe-inline';
-            font-src 'self' data: https://cdn.sanity.io;
-            frame-ancestors 'none';
-          `.replace(/\s{2,}/g, ' ').trim() },
+          {
+            key: 'Content-Security-Policy',
+            value: `
+              default-src 'self';
+              script-src 'self' 'unsafe-inline';
+              connect-src 'self' https://*.sanity.io https://*.api.sanity.io https://cdn.sanity.io;
+              img-src 'self' data: blob: https://cdn.sanity.io https://*.sanity.io;
+              style-src 'self' 'unsafe-inline';
+              font-src 'self' data: https://cdn.sanity.io;
+              frame-ancestors 'none';
+            `.replace(/\s{2,}/g, ' ').trim(),
+          },
         ],
       },
+      // Rest (PROD): Basis-CSP + Security-Header
       {
         source: '/:path*',
         headers: [
