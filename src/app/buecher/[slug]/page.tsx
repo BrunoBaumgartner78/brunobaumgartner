@@ -1,3 +1,4 @@
+// src/app/buecher/[slug]/page.tsx
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -17,16 +18,27 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = await params
   const book = await getBook(slug)
+
   const title = book?.title ? `${book.title} – Buch` : 'Buch'
-  const desc = book?.description?.slice(0, 160)
-  const og = book?.cover
-    ? [urlFor(book.cover).width(1200).height(630).fit('crop').url()]
-    : undefined
+  const desc =
+    (book?.description && String(book.description).slice(0, 160)) || undefined
+
+  const ogImg =
+    book?.cover
+      ? [
+          urlFor(book.cover)
+            .width(1200)
+            .height(630)
+            .fit('crop')
+            .quality(85)
+            .url(),
+        ]
+      : undefined
 
   return {
     title,
     description: desc,
-    openGraph: { title, description: desc, images: og },
+    openGraph: { title, description: desc, images: ogImg },
     alternates: { canonical: `/buecher/${slug}` },
   }
 }
@@ -42,23 +54,30 @@ export default async function BookPage(
     ? urlFor(book.cover).width(900).height(1200).fit('min').quality(80).url()
     : null
 
+  // Shop-Link aus Sanity mit Fallbacks
   const shopUrl: string | undefined =
-    (book as any).shopUrl || book.buyLinks?.find((b: any) => !!b?.url)?.url
+    (book as any).buyUrl ||
+    (book as any).shopUrl ||
+    book.buyLinks?.find((b: any) => !!b?.url)?.url
 
   return (
     <article className={`wrap ${s.page}`}>
+      {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className={s.crumbs}>
         <Link href="/buecher" className={s.link}>Bücher</Link>
         <span aria-hidden="true"> / </span>
         <span className={s.muted}>{book.title}</span>
       </nav>
 
+      {/* Titel */}
       <header className={s.head}>
         <h1 className={s.title}>{book.title}</h1>
         {book.subtitle && <p className={s.subtitle}>{book.subtitle}</p>}
       </header>
 
+      {/* Detail – responsive: mobil gestapelt, ab md nebeneinander */}
       <section className={s.detail}>
+        {/* Cover */}
         <div className={s.cover}>
           {imgSrc ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -72,9 +91,12 @@ export default async function BookPage(
           )}
         </div>
 
+        {/* Text & Aktionen */}
         <div className={s.content}>
+          {/* Kurzbeschreibung (einmalig) */}
           {book.description && <p className={s.desc}>{book.description}</p>}
 
+          {/* CTA */}
           <div className={s.cta}>
             {shopUrl && (
               <a
@@ -86,13 +108,15 @@ export default async function BookPage(
                 Zum Shop
               </a>
             )}
+
+            {/* Optionale weitere Händler */}
             {Array.isArray(book.buyLinks) && book.buyLinks.length > 0 && (
               <div className={s.more}>
                 {book.buyLinks
                   .filter((b: any) => b?.url && (!shopUrl || b.url !== shopUrl))
                   .map((b: any) => (
                     <a
-                      key={`${b.label}-${b.url}`}
+                      key={`${b.label || 'haendler'}-${b.url}`}
                       href={b.url}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -105,30 +129,66 @@ export default async function BookPage(
             )}
           </div>
 
-          {(book.isbn || book.publisher || book.year || book.pages || book.language) && (
+          {/* Meta-Daten */}
+          {(book.isbn ||
+            book.publisher ||
+            book.year ||
+            book.pages ||
+            book.language) && (
             <dl className={s.meta}>
-              {book.isbn && (<><dt>ISBN</dt><dd>{book.isbn}</dd></>)}
-              {book.publisher && (<><dt>Verlag</dt><dd>{book.publisher}</dd></>)}
-              {book.year && (<><dt>Jahr</dt><dd>{book.year}</dd></>)}
-              {book.pages && (<><dt>Seiten</dt><dd>{book.pages}</dd></>)}
-              {book.language && (<><dt>Sprache</dt><dd>{book.language}</dd></>)}
+              {book.isbn && (
+                <>
+                  <dt>ISBN</dt>
+                  <dd>{book.isbn}</dd>
+                </>
+              )}
+              {book.publisher && (
+                <>
+                  <dt>Verlag</dt>
+                  <dd>{book.publisher}</dd>
+                </>
+              )}
+              {book.year && (
+                <>
+                  <dt>Jahr</dt>
+                  <dd>{book.year}</dd>
+                </>
+              )}
+              {book.pages && (
+                <>
+                  <dt>Seiten</dt>
+                  <dd>{book.pages}</dd>
+                </>
+              )}
+              {book.language && (
+                <>
+                  <dt>Sprache</dt>
+                  <dd>{book.language}</dd>
+                </>
+              )}
             </dl>
           )}
 
+          {/* Tags */}
           {Array.isArray(book.tags) && book.tags.length > 0 && (
             <ul className={s.tags}>
               {book.tags.map((t: string) => (
-                <li key={t} className={s.tag}>{t}</li>
+                <li key={t} className={s.tag}>
+                  {t}
+                </li>
               ))}
             </ul>
           )}
 
           <div className={s.back}>
-            <Link href="/buecher" className={s.link}>← Zur Übersicht</Link>
+            <Link href="/buecher" className={s.link}>
+              ← Zur Übersicht
+            </Link>
           </div>
         </div>
       </section>
 
+      {/* JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -146,7 +206,11 @@ export default async function BookPage(
               ? { '@type': 'Organization', name: book.publisher }
               : undefined,
             offers: shopUrl
-              ? { '@type': 'Offer', url: shopUrl, availability: 'https://schema.org/InStock' }
+              ? {
+                  '@type': 'Offer',
+                  url: shopUrl,
+                  availability: 'https://schema.org/InStock',
+                }
               : undefined,
             description: book.description || undefined,
           }),

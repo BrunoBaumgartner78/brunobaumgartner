@@ -1,68 +1,29 @@
-.page { padding: 24px 0; }
-.crumbs { font-size: 0.9rem; opacity: 0.8; margin-bottom: 12px; }
-.link { text-decoration: underline; }
-.link:hover { text-decoration: none; }
-.muted { opacity: 0.7; }
+/* src/app/buecher/[slug]/page.module.css */
 
-.head { margin-bottom: 8px; }
-.title { margin: 0; font-size: 1.9rem; line-height: 1.2; }
-.subtitle { margin: 6px 0 0; font-size: 1.05rem; color: #525252; }
+.detail {
+  display: grid;
+  gap: 1.25rem;
+}
 
-/* Mobil: einspaltig (Cover über Text) */
-.detail { display: grid; gap: 1.25rem; }
-.cover { max-width: 360px; }
+@media (min-width: 768px) {
+  .detail {
+    grid-template-columns: auto 1fr; /* schlanke Cover-Spalte */
+    align-items: start;
+    gap: 2rem;
+  }
+}
+
 .cover img {
   display: block;
   width: 100%;
   height: auto;
+  border-radius: 12px;
   object-fit: cover;
-  border-radius: 12px;
-  border: 1px solid var(--color-border, #e5e7eb);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-.coverFallback {
-  aspect-ratio: 3 / 4;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  border: 1px solid var(--color-border,#e5e7eb);
-  color: #6b7280;
 }
 
-.desc { margin: 0; line-height: 1.65; font-size: 1rem; }
-
-.cta { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px; }
-.btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 10px 14px; border-radius: 10px; border: 1px solid #e5e7eb;
-  transition: background .15s ease, color .15s ease, border-color .15s ease;
-  text-decoration: none;
-}
-.btnPrimary { background: #000; color: #fff; border-color: #000; }
-.btnPrimary:hover { background: #111; }
-.btnGhost:hover { background: #f6f6f6; }
-
-.meta {
-  margin: 18px 0 0;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 6px 14px;
-  font-size: 0.95rem;
-  color: #525252;
-}
-.meta dt { opacity: .7; }
-.meta dd { margin: 0; }
-
-.tags { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.tag { font-size: 12px; border: 1px solid #e5e7eb; background: #fafafa; border-radius: 999px; padding: 4px 8px; }
-
-.back { margin-top: 16px; }
-
-/* Desktop: zweispaltig – schmale Cover-Spalte links */
+/* Coverbreite nur auf großen Screens begrenzen */
 @media (min-width: 1024px) {
-  .detail { grid-template-columns: 240px 1fr; align-items: start; }
-  .cover { max-width: none; }
-}
-@media (min-width: 1280px) {
-  .detail { grid-template-columns: 260px 1fr; }
+  .cover {
+    max-width: 260px; /* <- Cover klein halten */
+  }
 }
