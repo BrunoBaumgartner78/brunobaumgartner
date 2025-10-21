@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Farben & Typo ===== */
+:root{
+  --bg:#ffffff;
+  --fg:#0b1220;
+  --muted:#6b7280;     /* neutral-500 */
+  --border:#e5e7eb;    /* neutral-200 */
+  --brand:#1d4ed8;     /* Primärfarbe */
+  --brand-underline:#4338ca;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0c0f14;
+    --fg:#eef2ff;
+    --muted:#9aa3b2;
+    --border:#1f2937;
+    --brand:#60a5fa;
+    --brand-underline:#93c5fd;
+  }
+}
+
+:root{
+  --brand:#1d4ed8;        /* z.B. Swiss-Rot: #e10600 */
+  --brand-underline:#4338ca; /* z.B. #b70500 passend dunkler */
+}
+
+
+
+
+
+html { scroll-behavior: smooth; }
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:system-ui,"Segoe UI",Roboto,Ubuntu,Cantarell,"Noto Sans",Arial,Helvetica,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+/* Links & Fokus */
+a{ text-decoration:underline; text-underline-offset:2px; }
+a:hover{ text-decoration-color:var(--brand-underline); }
+:where(a,button,input,select,textarea):focus-visible{
+  outline:3px solid var(--brand); outline-offset:2px;
+}
+
+/* Skip-Link */
+.skip-link{ position:absolute; left:-9999px; top:auto; }
+.skip-link:focus{
+  left:1rem; top:1rem; background:#fff; color:#000;
+  padding:.5rem .75rem; border-radius:.5rem; box-shadow:0 4px 16px rgba(0,0,0,.15);
+}
+
+/* Layout-Helfer */
+.wrap{ max-width:72rem; margin-inline:auto; padding-inline:1rem; }
+.hr{ height:1px; background:var(--border); }
+
+/* Typografie */
+.h1{ font-weight:800; letter-spacing:-.02em; font-size:clamp(2rem,3vw,2.75rem); }
+.lead{ color:var(--muted); max-width:70ch; }
+
+
+/* Einheitliche Linkfarbe (auch visited) */
+a{
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+a:visited{ color: var(--brand); }
+a:hover{ text-decoration-color: var(--brand-underline); }
+
+/* Navi-Liste ohne Bullet & mit Abstand */
+.nav{ list-style: none; display: flex; gap: 1.25rem; margin: 0; padding: 0; }
+.nav a{ text-decoration: none; }
+.nav a:hover{ text-decoration: underline; text-underline-offset: 4px; }
+
+/* Kleiner Hero-Style (zentriert) */
+.hero{ text-align: center; margin-top: 1.75rem; }
+.hero .title{ font-weight: 800; letter-spacing: -0.02em; font-size: clamp(2.25rem,3.5vw,3rem); }
+.hero .lead{ margin-top: .5rem; color: var(--muted); max-width: 70ch; margin-inline: auto; }
+
+/* Cards & Thumbs */
+.card{
+  border:1px solid var(--border);
+  border-radius:1rem;
+  background:var(--bg);
+  padding:1rem;
+  transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+.card:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 20px rgba(0,0,0,.06);
+  border-color:color-mix(in oklab, var(--border), var(--brand) 25%);
+}
+
+.thumb{ aspect-ratio:4/3; overflow:hidden; border-radius:.75rem; background:#f3f4f6; }
+.thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* Prosa minimal */
+.prose{ max-width:75ch; }
+.prose p{ line-height:1.75; margin:.75rem 0; }
+.prose h1{ font-weight:700; font-size:clamp(1.75rem,3vw,2.25rem); margin:.5rem 0 1rem; }
+.prose h2{ font-weight:600; font-size:clamp(1.25rem,2.5vw,1.5rem); margin:1.25rem 0 .5rem; }
+.prose img{ border-radius:.5rem; margin:1rem 0; }
+
+.text-muted{ color:var(--muted); }
+.border-default{ border-color:var(--border); }
+
+/* Container */
+.wrap{max-width:960px;margin-inline:auto;padding-inline:1rem}
+
+/* Karten-Optik konsistent */
+.card{border:1px solid var(--color-border, #e5e7eb);border-radius:12px;padding:16px;background:var(--card-bg, #fff)}
+@media (prefers-color-scheme: dark){
+  .card{background:#0b0b0b;border-color:#222}
+}
+
+/* Fokus sichtbar */
+:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+
+/* Teaser auf 2 Zeilen clampen (ohne JS) */
+.clamp-2{
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+}
+
+/* Mehr Luft oben/unten im Hauptbereich & Footer */
+.site-main { padding-block: 4rem; }     /* oben+unten 64px */
+.site-footer { padding-block: 3.5rem; } /* oben+unten 56px */
+
+/* Optional: Abstand Header -> Main erhöhen */
+header + .site-main { margin-top: 1rem; }
