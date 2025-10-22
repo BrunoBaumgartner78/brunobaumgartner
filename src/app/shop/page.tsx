@@ -45,7 +45,7 @@ export default function ShopPage() {
         <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
           <li>Neue und ganzheitliche Sicht auf Körper und Schizophrenie</li>
           <li>Neue Denkimpulse</li>
-          <li>458 Seiten die das HCMI Model erklären und veranschalichen</li>
+          <li>458 Seiten die das HCIM Modell erklären und veranschalichen</li>
         </ul>
         <ul style={{ margin: 0, paddingLeft: '1.1rem'}}>
         <li>Du sparst dir mit hochladen der PDF auf deine KI Monate, 
