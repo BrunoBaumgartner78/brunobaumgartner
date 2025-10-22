@@ -47,6 +47,9 @@ export default function ShopPage() {
           <li>Neue Denkimpulse</li>
           <li>458 Seiten die das HCIM Modell erklären und veranschalichen</li>
         </ul>
+        <p>
+          Deine Vorteile durch den Download:
+        </p>
         <ul style={{ margin: 0, paddingLeft: '1.1rem'}}>
         <li>Du sparst dir mit hochladen der PDF auf deine KI Monate, 
           wenn nicht Jahre an Eigenrecherche und kommts direkt zum Punkt aktueller Forschung</li>
