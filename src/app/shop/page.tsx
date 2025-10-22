@@ -28,7 +28,7 @@ export default function ShopPage() {
 
       <div style={{ display: 'grid', gap: '.75rem', maxWidth: 820 }}>
         <p>
-          Du erhältst das vollständige Dokument als **durchsuchbares PDF** (Copy/Paste-freundlich) –
+          Du erhältst das vollständige Dokument als <strong>durchsuchbares PDF</strong> (Copy/Paste-freundlich) –
           optimal, um Abschnitte in ChatGPT zu referenzieren, zu zitieren oder zusammenfassen zu lassen.
         </p>
         <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
