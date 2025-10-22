@@ -1,0 +1,10 @@
+.header {
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+/* unter 900px: Header ausblenden (Tabbar übernimmt) */
+@media (max-width: 899px) {
+  .header {
+    display: none;
+  }
+}

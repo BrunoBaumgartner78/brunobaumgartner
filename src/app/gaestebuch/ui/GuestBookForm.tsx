@@ -1,5 +1,8 @@
+// src/app/components/GuestbookForm.tsx
 "use client"
+
 import { useState } from "react"
+import s from "./GuestbookForm.module.css"
 
 export default function GuestbookForm({ onCreated }: { onCreated?: () => void }) {
   const [name, setName] = useState("")
@@ -31,7 +34,6 @@ export default function GuestbookForm({ onCreated }: { onCreated?: () => void })
       setOk(true)
       setMessage("")
       onCreated?.()
-      // Liste auffrischen (event-basiert)
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("guestbook:new"))
       }
@@ -43,39 +45,48 @@ export default function GuestbookForm({ onCreated }: { onCreated?: () => void })
   }
 
   return (
-    <form onSubmit={submit} className="grid gap-3" aria-label="Gästebuch Formular">
-      <label className="grid gap-1">
-        <span>Name</span>
+    <form onSubmit={submit} className={s.form} aria-label="Gästebuch Formular">
+      <div className={s.row}>
+        <label className={s.label} htmlFor="gb-name">Name</label>
         <input
+          id="gb-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="border rounded px-3 py-2"
+          className={s.field}
+          placeholder="Dein Name"
         />
-      </label>
+      </div>
 
-      <label className="grid gap-1">
-        <span>Nachricht</span>
+      <div className={s.row}>
+        <label className={s.label} htmlFor="gb-msg">Nachricht</label>
         <textarea
+          id="gb-msg"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={4}
           required
           maxLength={500}
-          className="border rounded px-3 py-2"
+          className={`${s.field} ${s.textarea}`}
+          placeholder="Schreib etwas Nettes …"
         />
-        <small className="opacity-60">{message.length}/500</small>
-      </label>
+        <small className={s.counter}>{message.length}/500</small>
+      </div>
 
-      <div className="flex items-center gap-3">
+      <div className={s.actions}>
         <button
+          type="submit"
           disabled={pending}
-          className="border rounded px-4 py-2 bg-black text-white disabled:opacity-50"
+          className={s.button}
+          aria-busy={pending || undefined}
         >
           {pending ? "Senden…" : "Eintragen"}
         </button>
-        {ok && <span className="text-green-600">Danke! Eintrag gespeichert.</span>}
-        {error && <span className="text-red-600">{error}</span>}
+
+        <div className={s.status}>
+          {ok && <span className={s.ok}>Danke! Eintrag gespeichert.</span>}
+          {error && <span className={s.err}>{error}</span>}
+        </div>
       </div>
     </form>
   )

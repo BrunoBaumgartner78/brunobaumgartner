@@ -1,0 +1,98 @@
+/* ── VARS + GLASS CONTAINER ───────────────────────────── */
+.tabbar{
+  /* Tokens */
+  --tb-width: 320px; --tb-height: 60px;
+  --tb-active:#5628ee; --tb-dot:#23c4f8;
+  --tb-inactive:#99a3ba; --tb-text:#99a3ba;
+  --glass-bg1: rgba(255,255,255,.22); --glass-bg2: rgba(255,255,255,.08);
+  --glass-border: rgba(255,255,255,.32); --glass-inset: rgba(255,255,255,.12);
+  --glass-shadow: 0 10px 30px rgba(0,0,0,.12);
+
+  position: fixed; top: max(8px, env(safe-area-inset-top));
+  left: 0; right: 0; margin-inline: auto; z-index: 60;
+
+  width: min(100% - 16px, var(--tb-width));
+  height: auto; padding: 4px 6px; border-radius: 14px;
+
+  background: linear-gradient(to bottom, var(--glass-bg1), var(--glass-bg2));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), inset 0 0 0 1px var(--glass-inset);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+}
+
+/* Layout */
+.tabbar ul{ margin:0; padding:0; list-style:none; display:flex; position:relative; z-index:1; }
+.tabbar li{ position:relative; flex:1 1 0; }
+.tabbar a{ -webkit-tap-highlight-color:transparent; display:flex; justify-content:center; align-items:center; height:var(--tb-height); text-decoration:none; position:relative; }
+
+/* ── ICONS + LABEL ────────────────────────────────────── */
+.iconWrap{ position:absolute; top:50%; left:50%; transform:translate(-50%,-84%); width:20px; height:20px; }
+.iconDefault,.iconActive{
+  position:absolute; inset-inline-start:0; inset-block-end:0; width:20px; height:20px;
+  overflow:hidden; transform-origin:0 100%; transform:scale(.94); animation:tb-down .3s linear forwards; background:transparent;
+}
+.iconDefault svg,.iconActive svg{ position:absolute; inset-inline-start:0; inset-block-end:0; width:20px; height:20px; display:block; backface-visibility:hidden; }
+.iconDefault svg *{ transition:fill .3s ease, stroke .3s ease; fill:var(--tb-inactive); stroke:var(--tb-inactive); }
+.iconActive  svg *{ fill:var(--tb-active); stroke:var(--tb-active); }
+.iconDefault{ height:20px; z-index:1; }
+.iconActive { height:0;    z-index:5; transition:height .25s ease; }
+
+.label{ font-size:10px; font-weight:600; margin-top:28px; color:var(--tb-text); transition:opacity .3s ease, transform .3s ease, visibility 0s linear .3s; }
+
+/* ── ACTIVE STATE (li bekommt .active von dir) ───────── */
+.active .iconDefault,.tabbar li.active .iconDefault{ animation:tb-high .35s linear forwards .05s; }
+.active .iconActive,.tabbar li.active .iconActive { height:20px; transition:height .3s ease .25s; }
+.active .label,.tabbar li.active .label{ opacity:0; transform:scale(.6); visibility:hidden; transition-delay:0s; }
+
+/* ── CURSOR (beweglicher Punkt per --offset) ─────────── */
+/* … dein bestehendes CSS … */
+
+/* Beweglicher Cursor: var(--offset) ist eine Zahl → *1px in calc */
+.cursor{
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  width: 6px; height: 6px; border-radius: 50%;
+  transform: translateX(calc((var(--offset, 0)) * 1px - 3px));
+  transition: transform .4s ease;
+  z-index: 4;
+  background: radial-gradient(circle at center, #23c4f8 0%, rgba(35,196,248,.9) 40%, rgba(35,196,248,0) 70%);
+  box-shadow: 0 0 0 4px rgba(35,196,248,.18);
+  pointer-events: none;
+}
+
+/* Bis wir gemessen haben: keine Transition & unsichtbar -> kein Sprung */
+.tabbar[data-ready="false"] .cursor{
+  transition: none;
+  opacity: 0;
+}
+
+
+/* ── SAFE AREA + RESPONSIVE ──────────────────────────── */
+@supports(padding:max(0px)){ .tabbar{ padding-top:max(0px, env(safe-area-inset-top)); } }
+@media (min-width:900px){ .tabbar{ display:none; } }
+
+/* ── KEYFRAMES ───────────────────────────────────────── */
+@keyframes tb-high{
+  0%{ transform:rotate(0) scale(.94); }
+  33%{ transform:rotate(8deg); }
+  66%{ transform:rotate(8deg) translateY(-1px); }
+  100%{ transform:rotate(0) scale(1) translateY(-1px); }
+}
+@keyframes tb-down{
+  0%{ transform:rotate(0) scale(1) translateY(-1px); }
+  33%{ transform:rotate(8deg); }
+  66%{ transform:rotate(8deg) translateY(0); }
+  100%{ transform:rotate(0) scale(.94) translateY(0); }
+}
+
+/* ── DARK MODE GLASS ─────────────────────────────────── */
+@media (prefers-color-scheme: dark){
+  .tabbar{
+    --glass-bg1: rgba(13,16,20,.52); --glass-bg2: rgba(13,16,20,.32);
+    --glass-border: rgba(255,255,255,.08); --glass-inset: rgba(255,255,255,.06);
+    --glass-shadow: 0 10px 30px rgba(0,0,0,.45);
+    --tb-inactive:#a8b0c0; --tb-text:#c5ccda;
+  }
+}

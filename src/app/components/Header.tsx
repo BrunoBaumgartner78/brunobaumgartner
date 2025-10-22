@@ -1,13 +1,9 @@
-﻿// src/app/components/Header.tsx
-import Link from 'next/link'
+﻿import Link from 'next/link'
+import styles from './Header.module.css'
 
 export default function Header() {
   return (
-    <header
-      role="banner"
-      className="border-b"
-      style={{ borderColor: 'var(--color-border, #e5e7eb)' }}
-    >
+    <header role="banner" className={styles.header}>
       <div
         className="wrap"
         style={{
@@ -36,27 +32,10 @@ export default function Header() {
               gap: '1rem',
             }}
           >
-            <li>
-              <Link className="underline hover:no-underline" href="/blog">
-                Blog
-              </Link>
-            </li>
-            <li>
-              <Link className="underline hover:no-underline" href="/buecher">
-                Bücher
-              </Link>
-            </li>
-            <li>
-              <Link className="underline hover:no-underline" href="/galerie">
-                Galerie
-              </Link>
-            </li>
-            <li>
-  <Link className="underline hover:no-underline" href="/gaestebuch">
-    Gäste
-  </Link>
-</li>
-
+            <li><Link className="underline hover:no-underline" href="/blog">Blog</Link></li>
+            <li><Link className="underline hover:no-underline" href="/buecher">Bücher</Link></li>
+            <li><Link className="underline hover:no-underline" href="/galerie">Galerie</Link></li>
+            <li><Link className="underline hover:no-underline" href="/gaestebuch">Gäste</Link></li>
           </ul>
         </nav>
       </div>

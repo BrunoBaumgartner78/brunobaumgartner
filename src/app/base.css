@@ -1,15 +1,41 @@
+/* Tailwind first */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* =========
+   Design Tokens
+   ========= */
 :root{
+  /* Farben – Light */
   --bg: #ffffff;
   --fg: #0a0a0a;
   --muted: #6b7280;
   --border: #e5e7eb;
   --card-bg: #ffffff;
   --link: #1d4ed8;
+
+  /* Brand & Headings */
+  --brand: #1d4ed8;
+  --brand-underline: #4338ca;
+  --head: color-mix(in oklab, var(--fg), var(--brand) 24%);
+
+  /* Typo */
+  --font-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", Arial, Helvetica, sans-serif;
+  --font-head: "Fraunces", var(--font-sans);
+  /* Rhythmus */
+  --wrap: 72rem;        /* 1152px */
+  --space: 1rem;        /* Basisabstand */
+  --radius: 12px;
+
+  /* Selektion/Caret */
+  --select-bg: color-mix(in oklab, var(--brand), #fff 80%);
+  --select-fg: #000;
+
 }
+/* Fallback, falls Font noch lädt */
+:root { --font-heading: system-ui; }
+
 
 @media (prefers-color-scheme: dark){
   :root{
@@ -18,39 +44,40 @@
     --muted: #a3a3a3;
     --border: #2a2f37;
     --card-bg: #111217;
-    --link: #93c5fd;
+    --link: #cae3ff;
+
+    --head: color-mix(in oklab, var(--fg), var(--brand) 36%);
+    --select-bg: color-mix(in oklab, var(--brand), #000 75%);
+    --select-fg: #fff;
   }
 }
 
-html,body{ background: var(--bg); color: var(--fg); }
-a{ color: var(--link); }
-.wrap{ max-width: 1100px; margin: 0 auto; padding: 24px; }
-.h1{ font-size: 2rem; line-height: 1.2; }
-
-
-:root{
-  --brand:#1d4ed8;        /* z.B. Swiss-Rot: #e10600 */
-  --brand-underline:#4338ca; /* z.B. #b70500 passend dunkler */
-}
-
-
-
-
-
+/* =========
+   Base
+   ========= */
 html { scroll-behavior: smooth; }
+html, body { background: var(--bg); color: var(--fg); }
 body{
-  background:var(--bg);
-  color:var(--fg);
-  font-family:system-ui,"Segoe UI",Roboto,Ubuntu,Cantarell,"Noto Sans",Arial,Helvetica,sans-serif;
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
+
+/* Auswahl/Insertion */
+::selection{ background: var(--select-bg); color: var(--select-fg); }
+input, textarea { caret-color: var(--brand); }
 
 /* Links & Fokus */
-a{ text-decoration:underline; text-underline-offset:2px; }
-a:hover{ text-decoration-color:var(--brand-underline); }
+a{
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+a:hover{ text-decoration-color: var(--brand-underline); }
+a:visited{ color: var(--link); }
 :where(a,button,input,select,textarea):focus-visible{
-  outline:3px solid var(--brand); outline-offset:2px;
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
 }
 
 /* Skip-Link */
@@ -60,81 +87,243 @@ a:hover{ text-decoration-color:var(--brand-underline); }
   padding:.5rem .75rem; border-radius:.5rem; box-shadow:0 4px 16px rgba(0,0,0,.15);
 }
 
-/* Layout-Helfer */
-.wrap{ max-width:72rem; margin-inline:auto; padding-inline:1rem; }
+/* =========
+   Layout Helpers
+   ========= */
+.wrap{ max-width: var(--wrap); margin-inline:auto; padding-inline: 1rem; }
 .hr{ height:1px; background:var(--border); }
 
-/* Typografie */
-.h1{ font-weight:800; letter-spacing:-.02em; font-size:clamp(2rem,3vw,2.75rem); }
-.lead{ color:var(--muted); max-width:70ch; }
-
-
-/* Einheitliche Linkfarbe (auch visited) */
-a{
-  color: var(--brand);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+/* Platz für fixe MobileTabbar (oben) */
+@media (max-width: 899px){
+  main#hauptinhalt { padding-top: 76px; } /* Tabbar 60px + Margin 16px */
 }
-a:visited{ color: var(--brand); }
-a:hover{ text-decoration-color: var(--brand-underline); }
 
-/* Navi-Liste ohne Bullet & mit Abstand */
+/* =========
+   Typografie
+   ========= */
+
+/* Überschriften im „futuristischen“ Headline-Font */
+h1, h2, h3, h4, .h1 {
+  font-family: var(--font-heading), system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+
+/* Darf gerne etwas „techy“ wirken */
+h1, .h1 { text-transform: none; }
+
+
+.h1, h1 { font-weight: 800; font-size: clamp(2rem, 3vw, 2.75rem); }
+.h2, h2 { font-weight: 700; font-size: clamp(1.6rem, 2.5vw, 2rem); }
+.h3, h3 { font-weight: 650; font-size: clamp(1.25rem, 2vw, 1.5rem); }
+.h4, h4 { font-weight: 600; font-size: clamp(1.1rem, 1.6vw, 1.25rem); }
+
+/* Optionaler Gradient-Look für heroartige Headlines */
+.head-gradient{
+  background: linear-gradient(180deg,
+    color-mix(in oklab, var(--head), #fff 6%),
+    color-mix(in oklab, var(--brand), #000 8%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Lead-Text / Prosa */
+.lead{ color: var(--muted); max-width: 70ch; }
+.prose{ max-width: 75ch; }
+.prose p{ line-height: 1.75; margin: .75rem 0; }
+.prose h1{ font-weight: 700; font-size: clamp(1.75rem,3vw,2.25rem); margin: .5rem 0 1rem; }
+.prose h2{ font-weight: 600; font-size: clamp(1.25rem,2.5vw,1.5rem); margin: 1.25rem 0 .5rem; }
+.prose img{ border-radius: .5rem; margin: 1rem 0; }
+
+.text-muted{ color: var(--muted); }
+.border-default{ border-color: var(--border); }
+
+/* =========
+   Cards / Thumbs
+   ========= */
+.card{
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  padding: 1rem;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+.card:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.06);
+  border-color: color-mix(in oklab, var(--border), var(--brand) 25%);
+}
+@media (prefers-color-scheme: dark){
+  .card{ background: #0b0b0b; border-color: #222; }
+}
+.thumb{ aspect-ratio: 4 / 3; overflow: hidden; border-radius: .75rem; background: #f3f4f6; }
+.thumb img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* =========
+   Nav Helpers
+   ========= */
 .nav{ list-style: none; display: flex; gap: 1.25rem; margin: 0; padding: 0; }
 .nav a{ text-decoration: none; }
 .nav a:hover{ text-decoration: underline; text-underline-offset: 4px; }
 
-/* Kleiner Hero-Style (zentriert) */
-.hero{ text-align: center; margin-top: 1.75rem; }
-.hero .title{ font-weight: 800; letter-spacing: -0.02em; font-size: clamp(2.25rem,3.5vw,3rem); }
-.hero .lead{ margin-top: .5rem; color: var(--muted); max-width: 70ch; margin-inline: auto; }
+/* =========
+   Extras
+   ========= */
+.site-main { padding-block: 4rem; }
+.site-footer { padding-block: 3.5rem; }
+header + .site-main { margin-top: 1rem; }
 
-/* Cards & Thumbs */
-.card{
-  border:1px solid var(--border);
-  border-radius:1rem;
-  background:var(--bg);
-  padding:1rem;
-  transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
-}
-.card:hover{
-  transform:translateY(-1px);
-  box-shadow:0 6px 20px rgba(0,0,0,.06);
-  border-color:color-mix(in oklab, var(--border), var(--brand) 25%);
+/* Teaser auf 2 Zeilen clampen */
+.clamp-2{
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.thumb{ aspect-ratio:4/3; overflow:hidden; border-radius:.75rem; background:#f3f4f6; }
-.thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+/* === CTA Button – Premium Look === */
+.ctaBtn {
+  --btn-bg: var(--cta-btn-bg);
+  --btn-text: var(--cta-btn-text);
+  --btn-border: var(--cta-btn-border);
+  --btn-shadow: 0 1px 0 rgba(0,0,0,.04);
 
-/* Prosa minimal */
-.prose{ max-width:75ch; }
-.prose p{ line-height:1.75; margin:.75rem 0; }
-.prose h1{ font-weight:700; font-size:clamp(1.75rem,3vw,2.25rem); margin:.5rem 0 1rem; }
-.prose h2{ font-weight:600; font-size:clamp(1.25rem,2.5vw,1.5rem); margin:1.25rem 0 .5rem; }
-.prose img{ border-radius:.5rem; margin:1rem 0; }
+  display: inline-flex;
+  align-items: center;
+  gap: .58rem;
+  padding: .7rem 1.05rem;
+  border-radius: 12px;
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  box-shadow: var(--btn-shadow);
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
 
-.text-muted{ color:var(--muted); }
-.border-default{ border-color:var(--border); }
-
-/* Container */
-.wrap{max-width:960px;margin-inline:auto;padding-inline:1rem}
-
-/* Karten-Optik konsistent */
-.card{border:1px solid var(--color-border, #e5e7eb);border-radius:12px;padding:16px;background:var(--card-bg, #fff)}
-@media (prefers-color-scheme: dark){
-  .card{background:#0b0b0b;border-color:#222}
 }
+
+a.ctaBtn { color: var(--btn-text, #fff) !important; }
+
+
+/* Variante: Brand-Gradient + Glassy Glow */
+.ctaBtn--prime {
+  --btn-text: #fff;
+  border: 0;
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, var(--brand) 88%, #fff 6%) 0%,
+      color-mix(in oklab, var(--brand-underline) 90%, #000 6%) 100%);
+  box-shadow:
+    0 10px 22px rgba(0,0,0,.12),
+    0 2px 6px rgba(0,0,0,.08),
+    inset 0 0 0 1px rgba(255,255,255,.12);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 1) Sichere Textfarbe erzwingen (mit Fallback) */
+.ctaBtn { color: var(--btn-text, #fff); }
+
+/* 2) In der Prime-Variante die Textfarbe setzen */
+.ctaBtn--prime { --btn-text: #fff; }
+
+/* 3) Inhalt über das Overlay legen */
+.ctaBtn > * { position: relative; z-index: 1; }
+
+/* Glanz-Effekt */
+.ctaBtn--prime::before{
+  content:"";
+  position:absolute; inset:-1px;
+  background: linear-gradient( to bottom, rgba(255,255,255,.18), rgba(255,255,255,0) 60% );
+  pointer-events:none;
+  z-index: 0; 
+
+
+}
+
+/* Hover/Active */
+.ctaBtn--prime:hover{ transform: translateY(-2px); box-shadow:
+  0 12px 28px rgba(0,0,0,.18), 0 3px 10px rgba(0,0,0,.10), inset 0 0 0 1px rgba(255,255,255,.14); }
+.ctaBtn--prime:active{ transform: translateY(0); filter: brightness(.98); }
 
 /* Fokus sichtbar */
-:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
-
-/* Teaser auf 2 Zeilen clampen (ohne JS) */
-.clamp-2{
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+.ctaBtn--prime:focus-visible{
+  outline: 3px solid color-mix(in oklab, var(--brand) 70%, #fff 10%);
+  outline-offset: 2px;
 }
 
-/* Mehr Luft oben/unten im Hauptbereich & Footer */
-.site-main { padding-block: 4rem; }     /* oben+unten 64px */
-.site-footer { padding-block: 3.5rem; } /* oben+unten 56px */
+/* Pfeil-Icon Animation */
+.ctaBtn__icon{
+  width: 1.05rem; height: 1.05rem; flex: 0 0 auto;
+  transform: translateX(0); transition: transform .18s ease;
+}
+.ctaBtn--prime:hover .ctaBtn__icon{ transform: translateX(3px); }
 
-/* Optional: Abstand Header -> Main erhöhen */
-header + .site-main { margin-top: 1rem; }
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .ctaBtn, .ctaBtn--prime, .ctaBtn__icon { transition: none; }
+  .ctaBtn--prime:hover{ transform:none; }
+}
+
+/* Dark Mode Feinjustierung */
+@media (prefers-color-scheme: dark){
+  .ctaBtn--prime{
+    box-shadow:
+      0 12px 30px rgba(0,0,0,.45),
+      0 2px 10px rgba(0,0,0,.28),
+      inset 0 0 0 1px rgba(255,255,255,.06);
+  }
+}
+
+
+/* ===== Neumorphism Tokens ===== */
+:root{
+  --neo-bg: var(--bg);
+  --neo-shadow-dark: rgba(0,0,0,.16);
+  --neo-shadow-light: rgba(255,255,255,.85);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --neo-shadow-dark: rgba(0,0,0,.6);
+    --neo-shadow-light: rgba(255,255,255,.06);
+  }
+}
+
+/* ===== Footer Neo Blocks ===== */
+.footer-neo { background: var(--neo-bg); }
+
+/* leicht erhabenes Panel (für CTA-Bar) */
+.footer-neo__panel{
+  background: var(--neo-bg);
+  border-radius: 14px;
+  box-shadow:
+    9px 9px 18px var(--neo-shadow-dark),
+    -9px -9px 18px var(--neo-shadow-light);
+  border: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
+}
+
+/* leicht eingedrückte Fläche (z.B. Metriken) */
+.footer-neo__inset{
+  background: var(--neo-bg);
+  border-radius: 12px;
+  box-shadow:
+    inset 6px 6px 12px var(--neo-shadow-dark),
+    inset -6px -6px 12px var(--neo-shadow-light);
+}
+
+/* runde Icon-Buttons im Neo-Look */
+.footer-neo__icon{
+  background: var(--neo-bg);
+  border-radius: 9999px;
+  box-shadow:
+    6px 6px 12px var(--neo-shadow-dark),
+    -6px -6px 12px var(--neo-shadow-light);
+  border: 1px solid color-mix(in oklab, var(--border) 50%, transparent);
+  transition: transform .15s ease, box-shadow .2s ease;
+}
+.footer-neo__icon:hover{ transform: translateY(-1px); }

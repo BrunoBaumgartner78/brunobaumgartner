@@ -1,5 +1,8 @@
+// src/app/components/GuestbookList.tsx
 "use client"
+
 import { useEffect, useState } from "react"
+import s from "./GuestbookList.module.css"
 
 type Entry = { id: string; name: string; message: string; createdAt: number }
 
@@ -36,10 +39,7 @@ export default function GuestbookList() {
     }
   }
 
-  useEffect(() => {
-    load(true)
-  }, [])
-
+  useEffect(() => { load(true) }, [])
   useEffect(() => {
     const handler = () => load(true)
     window.addEventListener("guestbook:new", handler)
@@ -49,24 +49,28 @@ export default function GuestbookList() {
   const hasMore = offset < total
 
   return (
-    <section className="grid gap-3">
-      {items.length === 0 && !loading && <p>Keine Einträge vorhanden.</p>}
+    <section className={s.list} aria-busy={loading || undefined}>
+      {items.length === 0 && !loading && (
+        <div className={s.card}>
+          <p className={s.empty}>Keine Einträge vorhanden.</p>
+        </div>
+      )}
 
       {items.map((it) => (
-        <article key={it.id} className="border rounded-lg p-3">
-          <div className="text-sm opacity-70">
+        <article key={it.id} className={s.card}>
+          <div className={s.meta}>
             {new Date(it.createdAt).toLocaleString("de-CH")}
           </div>
-          <h3 className="m-0">{it.name}</h3>
-          <p style={{ whiteSpace: "pre-wrap" }}>{it.message}</p>
+          <h3 className={s.title}>{it.name}</h3>
+          <p className={s.message}>{it.message}</p>
         </article>
       ))}
 
-      {error && <p className="text-red-600">{error}</p>}
+      {error && <p className={s.err}>{error}</p>}
 
-      <div className="flex items-center justify-center">
+      <div className={s.actions}>
         {hasMore && (
-          <button onClick={() => load(false)} disabled={loading} className="border rounded px-4 py-2">
+          <button onClick={() => load(false)} disabled={loading} className={s.button}>
             {loading ? "Laden…" : "Mehr laden"}
           </button>
         )}

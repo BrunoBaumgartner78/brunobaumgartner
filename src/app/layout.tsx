@@ -1,12 +1,30 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next'
 import { SITE_URL, absUrl, SITE_TAGLINE } from '@/lib/seo'
-import Header from '@/app/components/Header'
+import Header from './components/Header'
 import Footer from '@/app/components/Footer'
 import MetricsBeacon from './components/MeticsBeacon'
+import MobileTabbar from './components/MobileTabbar' // ← prüfe Dateiname/Case
 import './base.css'
+import { Oxanium }  from 'next/font/google'
 
-// Einheitliches OG-Bild (sandfarben) mit Tagline aus seo.ts
+// Fonts (self-hosted) – setzen CSS-Variablen für base.css
+import { Inter, Oxanium } from 'next/font/google'
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-sans',
+})
+
+const oxanium = Oxanium({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-heading',
+  display: 'swap',
+})
+
+
+// Einheitliches OG-Bild (sandfarben) mit Tagline
 const DEFAULT_OG_URL = absUrl(
   `/og?title=${encodeURIComponent('Bruno Baumgartner – Autor')}` +
   `&subtitle=${encodeURIComponent(SITE_TAGLINE)}`
@@ -26,26 +44,33 @@ export const metadata: Metadata = {
       'application/rss+xml': [{ url: '/feed.xml', title: 'Brainbloom RSS' }],
     },
   },
-  openGraph: {
+ openGraph: {
     type: 'website',
     siteName: 'Brainbloom',
-    url: absUrl('/'),
+    url: new URL('/', SITE_URL).toString(),
     title: 'Bruno Baumgartner – Autor',
-    description:
-      'Texte, Blog und Einblicke von Bruno Baumgartner. Minimal, schnell und zugänglich.',
-    images: [DEFAULT_OG_URL],
+    description: 'Texte, Blog und Einblicke …',
+    images: [
+      {
+        url: new URL('/opengraph-image', SITE_URL).toString(), // absolut!
+        width: 1200,
+        height: 630,
+        type: 'image/png',
+        alt: 'Bruno Baumgartner – Autor',
+      },
+    ],
     locale: 'de_CH',
   },
   twitter: {
     card: 'summary_large_image',
-    images: [DEFAULT_OG_URL],
+    images: [new URL('/opengraph-image', SITE_URL).toString()],
   },
   robots: { index: true, follow: true },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de">
+    <html lang="de" className={`${inter.variable} ${oxanium.variable}`}>
       <body>
         {/* Skip-Link für Screenreader / Tastatur */}
         <a
@@ -56,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
 
         <Header />
+        <MobileTabbar />
         <main id="hauptinhalt">{children}</main>
         <Footer />
         <MetricsBeacon />
