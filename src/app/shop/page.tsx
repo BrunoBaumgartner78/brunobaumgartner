@@ -52,7 +52,7 @@ export default function ShopPage() {
         </p>
         <ul style={{ margin: 0, paddingLeft: '1.1rem'}}>
         <li>Du sparst dir mit hochladen der PDF auf deine KI Monate, 
-          wenn nicht Jahre an Eigenrecherche und kommts direkt zum Punkt aktueller Forschung</li>
+          wenn nicht Jahre, an Eigenrecherche und kommts direkt zum Punkt aktueller Forschung</li>
           <li>Die PDF ist kein Medizinischer Ratschlag, sondern eine Unabhängige Zusammenfassung von über 5000 Studien</li>
           </ul>
 
