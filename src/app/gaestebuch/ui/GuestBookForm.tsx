@@ -2,7 +2,7 @@
 "use client"
 
 import { useState } from "react"
-import s from "./GuestbookForm.module.css"
+import s from "./GuestBookForm.module.css"
 
 export default function GuestbookForm({ onCreated }: { onCreated?: () => void }) {
   const [name, setName] = useState("")

@@ -2,7 +2,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import s from "./GuestbookList.module.css"
+import s from "./GuestBookList.module.css"
 
 type Entry = { id: string; name: string; message: string; createdAt: number }
 
