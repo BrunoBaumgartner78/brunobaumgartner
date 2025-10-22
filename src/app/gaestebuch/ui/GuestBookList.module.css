@@ -12,6 +12,7 @@
     6px 6px 14px rgba(0,0,0,.06),
     -6px -6px 14px rgba(255,255,255,.7),
     inset 0 0 0 1px rgba(255,255,255,.5);
+    width: 100%;
 }
 
 .loadMore {

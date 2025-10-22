@@ -4,7 +4,7 @@ import { SITE_URL, absUrl, SITE_TAGLINE } from '@/lib/seo'
 import Header from './components/Header'
 import Footer from '@/app/components/Footer'
 import MetricsBeacon from './components/MeticsBeacon'
-import MobileTabbar from './components/MobileTabbar' // ← prüfe Dateiname/Case
+import MobileTabbar from './components/MobileTabar' // ← prüfe Dateiname/Case
 import './base.css'
 import { Oxanium }  from 'next/font/google'
 

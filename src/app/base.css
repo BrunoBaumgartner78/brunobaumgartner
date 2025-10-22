@@ -61,6 +61,8 @@ body{
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  margin: 0;
+  padding: 0;
 }
 
 /* Auswahl/Insertion */
@@ -95,7 +97,7 @@ a:visited{ color: var(--link); }
 
 /* Platz für fixe MobileTabbar (oben) */
 @media (max-width: 899px){
-  main#hauptinhalt { padding-top: 76px; } /* Tabbar 60px + Margin 16px */
+  main#hauptinhalt { padding: 0; padding-top: 76px; margin: 5px;} /* Tabbar 60px + Margin 16px */
 }
 
 /* =========
@@ -327,3 +329,26 @@ a.ctaBtn { color: var(--btn-text, #fff) !important; }
   transition: transform .15s ease, box-shadow .2s ease;
 }
 .footer-neo__icon:hover{ transform: translateY(-1px); }
+/* --- horizontales Überlaufen zuverlässig verhindern --- */
+html, body { width: 100%; overflow-x: clip; }   /* kein hässlicher X-Scrollbar */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+/* Medien & Code nie breiter als Container */
+img, video, canvas, svg, iframe { max-width: 100%; height: auto; }
+
+/* Lange Wörter/URLs umbrechen */
+:where(p, li, blockquote, h1, h2, h3, h4, h5, h6) { overflow-wrap: anywhere; }
+
+/* Flex-/Grid-Kinder dürfen schrumpfen (verhindert „min-width: auto“-Overflow) */
+[style*="display:flex"] > * { min-width: 0; }
+[style*="display:grid"] > * { min-width: 0; }
+
+/* Tabellen/Pre notfalls scrollen, statt das Layout zu sprengen */
+table { display: block; width: 100%; overflow-x: auto; }
+pre   { white-space: pre-wrap; word-break: break-word; }
+
+/* base.css (optional, robust gegen breite Inhalte in Top-/Footerleisten) */
+.ctaBar .wrap > * { min-width: 0; }
+.ctaBar em { white-space: normal; overflow-wrap: anywhere; }

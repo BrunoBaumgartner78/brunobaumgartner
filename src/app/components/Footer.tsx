@@ -92,11 +92,19 @@ export default function Footer() {
         </div>
 
         {/* Mitte: Metrics – leicht „eingedrückt“ */}
-        <div style={{ flex: '1 1 420px', minWidth: 330, display: 'flex', justifyContent: 'center' }}>
-          <div className="footer-neo__inset" style={{ padding: 12, width: '100%', borderRadius: 12 }}>
-            <MetricsWidget />
-          </div>
-        </div>
+      
+<div
+  style={{
+    flex: '1 1 320px',   // darf schrumpfen
+    minWidth: 0,         // << wichtig: Overflow verhindern
+    display: 'flex',
+    justifyContent: 'center',
+    overflow: 'hidden',  // falls Schatten/Glüh-Effekte
+  }}
+>
+  <MetricsWidget />
+</div>
+
 
         {/* Rechts: Social */}
         <div aria-label="Social Media" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', minWidth: 260, justifyContent: 'flex-end', paddingBottom: 20 }}>

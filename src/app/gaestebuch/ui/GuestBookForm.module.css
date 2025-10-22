@@ -1,66 +1,120 @@
-/* Neumorph-Form – leichte Tiefe + klare Typo */
-.form { display: grid; gap: 14px; }
+/* Neumorph-Gästebuch-Formular (CSS-Module) */
 
-.card {
-  border-radius: 14px;
-  padding: 16px;
-  background: var(--card-bg, #f6f7fb);
-  border: 1px solid color-mix(in oklab, var(--border, #e5e7eb), #fff 30%);
-  box-shadow:
-    6px 6px 14px rgba(0,0,0,.06),
-    -6px -6px 14px rgba(255,255,255,.7),
-    inset 0 0 0 1px rgba(255,255,255,.5);
+.form {
+  display: grid;
+  gap: 14px;
 }
 
-.field { display: grid; gap: 6px; }
-.label { font-size: .9rem; opacity: .8; }
-
-.input, .textarea {
-  width: 100%;
-  font: inherit;
-  border: none;
-  outline: none;
-  border-radius: 12px;
-  padding: 12px 14px;
-  background: var(--card-bg, #f6f7fb);
-  box-shadow:
-    inset 6px 6px 12px rgba(0,0,0,.07),
-    inset -6px -6px 12px rgba(255,255,255,.6);
+/* Zeile + Label */
+.row {
+  display: grid;
+  gap: 8px;
+}
+.label {
+  font-weight: 600;
+  letter-spacing: .2px;
+  opacity: .85;
 }
 
-.textarea { min-height: 120px; resize: vertical; }
-.counter { font-size: .8rem; opacity: .6; }
+/* Neumorph-Token pro Formularinstanz (aus card/bg ableiten) */
+.form {
+  --neu-bg: var(--card-bg, var(--bg, #f2f3f7));
+  --neu-radius: 14px;
+  --neu-inset: inset 2px 2px 5px color-mix(in oklab, var(--neu-bg), #000 10%),
+               inset -2px -2px 6px color-mix(in oklab, var(--neu-bg), #fff 75%);
+  --neu-out:   8px 8px 18px color-mix(in oklab, var(--neu-bg), #000 12%),
+               -8px -8px 20px color-mix(in oklab, var(--neu-bg), #fff 72%);
+  --neu-ring:  0 0 0 3px color-mix(in oklab, var(--neu-bg), #3b82f6 45%);
+  width: auto;
+  padding: 14px;
+}
 
-.row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-
-.button {
+/* Eingabefeld (Input & Textarea teilen sich die Basis) */
+.field {
   appearance: none;
+  width: 100%;
   border: 0;
-  cursor: pointer;
+  border-radius: var(--neu-radius);
+  padding: 12px 14px;
+  font: inherit;
+  color: var(--fg);
+  background: linear-gradient(145deg,
+              color-mix(in oklab, var(--neu-bg), #fff 2%),
+              color-mix(in oklab, var(--neu-bg), #000 2%));
+  box-shadow: var(--neu-out), var(--neu-inset);
+  transition: box-shadow .18s ease, transform .18s ease, background .18s ease;
+}
+.field::placeholder {
+  color: color-mix(in oklab, var(--fg), #999 55%);
+  opacity: .9;
+}
+.field:focus-visible {
+  outline: none;
+  box-shadow: var(--neu-out), var(--neu-inset), var(--neu-ring);
+}
+
+/* Textarea Zusätze */
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Zähler */
+.counter {
+  margin-top: 6px;
+  justify-self: end;
+  font-size: .85rem;
+  color: color-mix(in oklab, var(--fg), #777 50%);
+}
+
+/* Aktionen + Status */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.status {
+  min-height: 1lh;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ok  { color: #10b981; font-weight: 600; }
+.err { color: #dc2626; font-weight: 600; }
+
+/* Optional: Button dezent neumorph (dein vorhandener Button bleibt kompatibel) */
+.button {
+  border: 0;
   border-radius: 12px;
   padding: 10px 16px;
   font-weight: 700;
-  color: #fff;
-  background: linear-gradient(180deg, #6a8dff, #4d64f3);
+  color: var(--fg);
+  background: linear-gradient(145deg,
+              color-mix(in oklab, var(--neu-bg), #fff 2%),
+              color-mix(in oklab, var(--neu-bg), #000 3%));
   box-shadow:
-    0 8px 18px rgba(77,100,243,.32),
-    inset 0 0 0 1px rgba(255,255,255,.25);
-  transition: transform .06s ease, box-shadow .12s ease, opacity .2s ease;
+    6px 6px 14px color-mix(in oklab, var(--neu-bg), #000 14%),
+    -6px -6px 16px color-mix(in oklab, var(--neu-bg), #fff 70%);
+  transition: transform .12s ease, box-shadow .12s ease;
 }
-.button:disabled { opacity: .6; cursor: not-allowed; }
-.button:active { transform: translateY(1px); box-shadow: 0 4px 10px rgba(77,100,243,.28); }
+.button:hover { transform: translateY(-1px); }
+.button:active {
+  transform: translateY(0);
+  box-shadow:
+    4px 4px 10px color-mix(in oklab, var(--neu-bg), #000 18%),
+    -4px -4px 12px color-mix(in oklab, var(--neu-bg), #fff 60%),
+    inset 1px 1px 3px color-mix(in oklab, var(--neu-bg), #000 15%),
+    inset -1px -1px 3px color-mix(in oklab, var(--neu-bg), #fff 55%);
+}
+.button[aria-busy="true"] { opacity: .7; cursor: progress; }
 
-.ok { color: #059669; font-weight: 600; }
-.err { color: #b00020; font-weight: 600; }
-
-/* Dark */
+/* Dark-Mode Feinjustage */
 @media (prefers-color-scheme: dark) {
-  .card, .input, .textarea {
-    background: #0f1116;
-    border-color: #1b2230;
-    box-shadow:
-      6px 6px 14px rgba(0,0,0,.55),
-      -6px -6px 14px rgba(255,255,255,.02),
-      inset 0 0 0 1px rgba(255,255,255,.03);
+  .form {
+    --neu-bg: var(--card-bg, #0f1217);
+  }
+  .field::placeholder {
+    color: color-mix(in oklab, var(--fg), #bbb 35%);
   }
 }
