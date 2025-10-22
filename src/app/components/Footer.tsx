@@ -79,8 +79,8 @@ export default function Footer() {
         }}
       >
         {/* Links: Copyright + Rechtliches */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem 1rem', minWidth: 260 }}>
-          <span style={{ opacity: 0.8, whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem 1rem', minWidth: 260, margin: 5 }}>
+          <span style={{ opacity: 0.8, whiteSpace: 'nowrap', margin: 10 }}>
             © {new Date().getFullYear()} Bruno Baumgartner
           </span>
           <nav aria-label="Rechtliches">
