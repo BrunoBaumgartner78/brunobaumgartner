@@ -55,6 +55,11 @@ export default function ShopPage() {
           wenn nicht Jahre an Eigenrecherche und kommts direkt zum Punkt aktueller Forschung</li>
           <li>Die PDF ist kein Medizinischer Ratschlag, sondern eine Unabhängige Zusammenfassung von über 5000 Studien</li>
           </ul>
+
+          <p>
+         Dieses Wissen findest du nicht in Büchern, da es zu Speziell ist und der Absatzmarkt 
+         für solche Bücher zu klein für eine Produktion durch einen Verlag.
+        </p>
         <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center', marginTop: '.5rem' }}>
           <BuyButton productId="cim-pdf" label="Jetzt als PDF kaufen" />
           <span style={{ opacity: .8 }}>CHF&nbsp;380.–</span>
