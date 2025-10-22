@@ -92,10 +92,10 @@ export default async function Home() {
 
         <p style={{ margin: 0, maxWidth: 820 }}>
           Bruno Baumgartner ist auch <strong>Schizophrenie Resercher</strong> und recherchiert seit
-          <strong >10 Jahren</strong>, aufmerksam alle möglichen Studien. Seine Quellen sind{' '}
+          <strong > 10 Jahren</strong>, aufmerksam alle möglichen Studien. Seine Quellen sind{' '}
           <strong>Pubmed, Nature, Springer und viele mehr.</strong>
-          Er spricht als Erfahrener der seit fast 30 Jahren mit Schizophrenie lebt und 
-          ist mit seiner Erfahrung und Recherche einer der grössten Experten für Schizophrenie.
+           Er spricht als Erfahrener der seit fast 30 Jahren mit Schizophrenie lebt und 
+          mit seiner Erfahrung und Recherche ist einer der grössten Experten für Schizophrenie.
         </p>
 
 
