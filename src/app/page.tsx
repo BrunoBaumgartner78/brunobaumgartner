@@ -85,16 +85,26 @@ export default async function Home() {
         </h2>
         <p style={{ margin: 0, maxWidth: 820 }}>
           Bruno Baumgartner schreibt kurze Formen – Notate, Essays, Miniaturen. Im Fokus:
-          <strong> Sprache als Werkzeug</strong>, aufmerksame Wahrnehmung und Schnittstellen von{' '}
+          <strong>Schizophrenie und Sprache als Werkzeug</strong>, aufmerksame Wahrnehmung und Schnittstellen von{' '}
           <strong>Alltag, Denken und Gestaltung</strong>. Diese Seite dokumentiert laufende Arbeit
           in einer ruhigen, ablenkungsarmen Umgebung.
         </p>
+
+        <p style={{ margin: 0, maxWidth: 820 }}>
+          Bruno Baumgartner ist auch Schizophrenie Resercher und recherchiert seit
+          <strong>10 Jahren</strong>, aufmerksahm alle möglichen Studien. Seine Quellen sind{' '}
+          <strong>Pubmed, Nature, Springer</strong> und viele andere.
+          Er spricht als Erfahrener der seit fast 30 Jahren mit Schizophrenie lebt und 
+          ist mit seiner Erfahrung und Recherche einer der grössten Experten für Schizophrenie.
+        </p>
+
 
         <h3 style={{ fontSize: '1.125rem', margin: '0.75rem 0 0.25rem' }}>Schwerpunkte</h3>
         <ul style={{ margin: 0, paddingLeft: '1.25rem', maxWidth: 820 }}>
           <li>Schreiben & Arbeitsprozess: kleine Methoden, große Wirkung</li>
           <li>Beobachtung & Gesellschaft: präzise Sprache für Alltägliches</li>
           <li>Textexperimente: Formen zwischen Notiz, Essay und Miniatur</li>
+           <li>Recherche über Psychiatrie, Systembiologie, Medizin und Immunologie</li>
         </ul>
       </section>
 
@@ -179,7 +189,7 @@ export default async function Home() {
           </summary>
           <div>
             Autor kurzer Formen – von Notaten bis Miniaturen – über Wahrnehmung, Sprache und
-            Alltag. Neue Texte erscheinen fortlaufend im{' '}
+            Alltag, Schizophrenie Resercher und Schizophrenie Autor. Neue Texte erscheinen fortlaufend im{' '}
             <Link href="/blog" className="underline">
               Blog
             </Link>
@@ -255,7 +265,7 @@ export default async function Home() {
                 name: 'Wer ist Bruno Baumgartner?',
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'Autor kurzer Formen – Notate, Miniaturen, Essays – über Wahrnehmung, Sprache und Alltag.',
+                  text: 'Autor kurzer Formen – Notate, Miniaturen, Essays – über Wahrnehmung, Sprache und Alltag und Schizophrenie Resercher.',
                 },
               },
               {

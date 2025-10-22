@@ -38,7 +38,20 @@ export default function ShopPage() {
           <li>Datei: PDF (geeignet für Suche & Weiterverarbeitung mit ChatGPT)</li>
           <li>Nutzung: privat, kein Weitervertrieb</li>
         </ul>
-
+        <p>
+          Du erhältst das volle Wissen aus 10 Jahren Recherche über die Biologische Ursache von Schizophrenie –
+          darin enthalten:
+        </p>
+        <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
+          <li>Neue und Ganzheitliche Sicht auf Schizophrenie</li>
+          <li>Neue Denkimpulse</li>
+          <li>458 Seiten die das HCMI Model erklären und veranschalichen</li>
+        </ul>
+        <ul style={{ margin: 0, paddingLeft: '1.1rem'}}>
+        <li>Du sparst dir mit hochladen der PDF auf deine KI Monate, 
+          wenn nicht Jahre an Eigenrecherche und kommts direkt zum Punkt aktueller Forschung</li>
+          <li>Die PDF ist kein Medizinischer Ratschlag, sondern eine Unabhängige Zusammenfassung von über 5000 Studien</li>
+          </ul>
         <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center', marginTop: '.5rem' }}>
           <BuyButton productId="cim-pdf" label="Jetzt als PDF kaufen" />
           <span style={{ opacity: .8 }}>CHF&nbsp;380.–</span>
