@@ -1,6 +1,7 @@
 // src/app/components/BuyButton.tsx
 'use client'
 import * as React from 'react'
+import s from './BuyButton.module.css'
 
 export default function BuyButton({
   label = 'Jetzt als PDF kaufen',
@@ -12,6 +13,7 @@ export default function BuyButton({
   const [loading, setLoading] = React.useState(false)
 
   const buy = async () => {
+    if (loading) return
     setLoading(true)
     try {
       const r = await fetch('/api/shop/checkout', {
@@ -22,7 +24,6 @@ export default function BuyButton({
 
       const ct = r.headers.get('content-type') || ''
 
-      // Fehlerfälle lesbar machen
       if (!r.ok) {
         const msg = ct.includes('application/json')
           ? (await r.json().catch(() => ({})))?.error
@@ -30,7 +31,6 @@ export default function BuyButton({
         throw new Error(msg || `HTTP ${r.status}`)
       }
 
-      // Erwartet: JSON mit { url }
       if (ct.includes('application/json')) {
         const data = await r.json().catch(() => ({}))
         if (data?.url) {
@@ -40,7 +40,6 @@ export default function BuyButton({
         throw new Error('Antwort ohne URL')
       }
 
-      // Fallbacks: (sollte eigentlich nicht passieren)
       if (r.redirected && r.url) {
         window.location.href = r.url
         return
@@ -65,17 +64,13 @@ export default function BuyButton({
       type="button"
       onClick={buy}
       disabled={loading}
-      style={{
-        padding: '0.9rem 1.2rem',
-        borderRadius: 10,
-        border: '1px solid var(--color-border,#e5e7eb)',
-        background: 'var(--color-card,#f7f7f7)',
-        fontWeight: 600,
-        cursor: loading ? 'not-allowed' : 'pointer',
-        minWidth: 220,
-      }}
+      className={s.btn}
+      data-loading={loading ? 'true' : undefined}
+      aria-busy={loading}
+      aria-live="polite"
     >
-      {loading ? 'Weiterleiten…' : label}
+      {loading && <span className={s.spinner} aria-hidden="true" />}
+      <span>{loading ? 'Weiterleiten…' : label}</span>
     </button>
   )
 }

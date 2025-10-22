@@ -1,0 +1,93 @@
+/* src/app/components/BuyButton.module.css */
+
+/* Variablen lokal auf der Button-Klasse definieren */
+.btn {
+  /* Light-Defaults */
+  --neu-surface: #eaf2ff;
+  --neu-text: #0b5cff;
+  --neu-border: rgba(11, 92, 255, 0.22);
+  --neu-shadow-dark: rgba(12, 24, 48, 0.18);
+  --neu-shadow-light: rgba(255, 255, 255, 0.9);
+
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  border: 1px solid var(--neu-border);
+  background: var(--neu-surface);
+  color: var(--neu-text);
+  font-weight: 700;
+  font-size: 0.98rem;
+  line-height: 1;
+  padding: 0.9rem 1.2rem;
+  min-width: 220px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    transform 120ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+  box-shadow:
+    10px 10px 22px var(--neu-shadow-dark),
+    -10px -10px 22px var(--neu-shadow-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  .btn {
+    /* Dark-Overrides */
+    --neu-surface: #0b1220;
+    --neu-text: #9cc2ff;
+    --neu-border: rgba(156, 194, 255, 0.25);
+    --neu-shadow-dark: rgba(0, 0, 0, 0.55);
+    --neu-shadow-light: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    14px 14px 28px var(--neu-shadow-dark),
+    -14px -14px 28px var(--neu-shadow-light);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 8px 8px 18px var(--neu-shadow-dark),
+    inset -8px -8px 18px var(--neu-shadow-light);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(11, 92, 255, 0.15),
+    10px 10px 22px var(--neu-shadow-dark),
+    -10px -10px 22px var(--neu-shadow-light);
+}
+
+/* Disabled/Loading */
+.btn[disabled],
+.btn[data-loading='true'] {
+  cursor: not-allowed;
+  opacity: 0.9;
+}
+
+.spinner {
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  display: inline-block;
+  animation: spin 700ms linear infinite;
+  filter: saturate(1.2);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
