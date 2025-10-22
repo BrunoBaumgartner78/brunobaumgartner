@@ -57,8 +57,8 @@ export default function ShopPage() {
           </ul>
 
           <p>
-         Dieses Wissen findest du nicht in Büchern, da es zu Speziell ist und der Absatzmarkt 
-         für solche Bücher zu klein für eine Produktion durch einen Verlag.
+         Dieses Wissen findest du nicht in Büchern, da es zu speziell und der Absatzmarkt 
+         für solche Bücher zu klein für eine Produktion durch einen Verlag ist.
         </p>
         <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center', marginTop: '.5rem' }}>
           <BuyButton productId="cim-pdf" label="Jetzt als PDF kaufen" />
