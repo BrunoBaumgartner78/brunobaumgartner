@@ -85,7 +85,7 @@ export default async function Home() {
         </h2>
         <p style={{ margin: 0, maxWidth: 820 }}>
           Bruno Baumgartner schreibt kurze Formen – Notate, Essays, Miniaturen. Im Fokus:
-          <strong>Schizophrenie und Sprache als Werkzeug</strong>, aufmerksame Wahrnehmung und Schnittstellen von{' '}
+          <strong> Schizophrenie und Sprache als Werkzeug</strong>, aufmerksame Wahrnehmung und Schnittstellen von{' '}
           <strong>Alltag, Denken und Gestaltung</strong>. Diese Seite dokumentiert laufende Arbeit
           in einer ruhigen, ablenkungsarmen Umgebung.
         </p>
