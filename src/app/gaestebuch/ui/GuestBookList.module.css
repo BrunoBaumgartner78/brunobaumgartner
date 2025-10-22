@@ -1,107 +1,51 @@
-/* src/app/components/GuestbookList.module.css */
-.list{
-  display: grid;
-  gap: 14px;
-}
+.list { display: grid; gap: 12px; }
+.meta { font-size: .85rem; opacity: .7; }
+.name { margin: 0; font-weight: 700; }
+.text { white-space: pre-wrap; margin: .35rem 0 0; }
 
-.card{
-  --neu-bg: var(--bg);
-  --neu-fg: var(--fg);
-  --neu-muted: var(--muted);
-  --neu-border: color-mix(in oklab, var(--bg) 96%, #000 4%);
-  --neu-raised-dark: rgba(0,0,0,.12);
-  --neu-raised-light: rgba(255,255,255,.85);
-
-  background: var(--neu-bg);
-  color: var(--neu-fg);
-  border-radius: 16px;
-  padding: 16px 18px;
-  border: 1px solid var(--neu-border);
+.card {
+  border-radius: 14px;
+  padding: 16px;
+  background: var(--card-bg, #f6f7fb);
+  border: 1px solid color-mix(in oklab, var(--border, #e5e7eb), #fff 30%);
   box-shadow:
-    12px 12px 28px var(--neu-raised-dark),
-    -12px -12px 28px var(--neu-raised-light);
-  transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease;
+    6px 6px 14px rgba(0,0,0,.06),
+    -6px -6px 14px rgba(255,255,255,.7),
+    inset 0 0 0 1px rgba(255,255,255,.5);
 }
 
-.card:hover{
-  transform: translateY(-1px);
-  box-shadow:
-    14px 14px 30px rgba(0,0,0,.14),
-    -14px -14px 30px rgba(255,255,255,.88);
-}
-
-.meta{
-  font-size: .85rem;
-  color: var(--neu-muted);
-  margin-bottom: 4px;
-}
-
-.title{
-  margin: 0 0 4px 0;
-  font-weight: 700;
-  letter-spacing: .2px;
-}
-
-.message{
-  margin: 0;
-  white-space: pre-wrap;
-  line-height: 1.6;
-}
-
-.empty{ margin: 0; color: var(--neu-muted); }
-
-.err{
-  color: #ef4444;
-  font-weight: 600;
-  margin: 4px 2px 0;
-}
-
-.actions{
-  display: flex;
-  justify-content: center;
-  padding-top: 6px;
-}
-
-.button{
+.loadMore {
   appearance: none;
   border: 0;
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 10px 16px;
   font-weight: 700;
-  letter-spacing: .2px;
+  background: linear-gradient(180deg, #e8eaf7, #d8dcf3);
+  color: #1f2937;
+  box-shadow:
+    0 6px 14px rgba(0,0,0,.06),
+    inset 0 0 0 1px rgba(255,255,255,.5);
   cursor: pointer;
-  color: #fff;
-  background: linear-gradient(180deg, #3b82f6, #2563eb);
-  position: relative;
-  overflow: hidden;
-  box-shadow:
-    8px 8px 20px var(--neu-raised-dark),
-    -8px -8px 20px var(--neu-raised-light),
-    inset 0 0 0 1px rgba(255,255,255,.18);
-  transition: transform .12s ease, box-shadow .18s ease, filter .18s ease;
+  transition: transform .06s ease, box-shadow .12s ease, opacity .2s ease;
 }
-.button::before{
-  content:"";
-  position:absolute; inset:-1px;
-  background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.06));
-  pointer-events:none;
-}
-.button:hover{ transform: translateY(-1px); filter: brightness(1.02); }
-.button:active{
-  transform: translateY(0);
-  box-shadow:
-    inset 5px 5px 12px rgba(0,0,0,.18),
-    inset -5px -5px 12px rgba(255,255,255,.25);
-}
-.button[disabled]{ opacity:.6; cursor:not-allowed; }
+.loadMore:disabled { opacity: .6; cursor: not-allowed; }
+.loadMore:active { transform: translateY(1px); box-shadow: 0 3px 8px rgba(0,0,0,.08); }
 
-@media (prefers-color-scheme: dark){
-  .card{
-    --neu-raised-dark: rgba(0,0,0,.5);
-    --neu-raised-light: rgba(255,255,255,.06);
-    --neu-border: rgba(255,255,255,.06);
+/* Dark */
+@media (prefers-color-scheme: dark) {
+  .card {
+    background: #0f1116;
+    border-color: #1b2230;
+    box-shadow:
+      6px 6px 14px rgba(0,0,0,.55),
+      -6px -6px 14px rgba(255,255,255,.02),
+      inset 0 0 0 1px rgba(255,255,255,.03);
   }
-  .button{
-    background: linear-gradient(180deg, #4f46e5, #4338ca);
+  .loadMore {
+    background: linear-gradient(180deg, #1b2130, #141a25);
+    color: #e5e7eb;
+    box-shadow:
+      0 8px 18px rgba(0,0,0,.45),
+      inset 0 0 0 1px rgba(255,255,255,.06);
   }
 }
