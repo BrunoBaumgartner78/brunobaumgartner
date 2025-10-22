@@ -39,13 +39,13 @@ export default function ShopPage() {
           <li>Nutzung: privat, kein Weitervertrieb</li>
         </ul>
         <p>
-          Du erhältst das volle Wissen aus 10 Jahren Recherche über die Biologische Ursache von Schizophrenie –
+          Du erhältst das volle Wissen aus 10 Jahren Recherche über die biologische Ursache von Schizophrenie –
           darin enthalten:
         </p>
         <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
           <li>Neue und ganzheitliche Sicht auf Körper und Schizophrenie</li>
           <li>Neue Denkimpulse</li>
-          <li>458 Seiten die das HCIM Modell erklären und veranschalichen</li>
+          <li>458 Seiten die das HCIM Modell erklären und veranschaulichen</li>
         </ul>
         <p>
           Deine Vorteile durch den Download:
