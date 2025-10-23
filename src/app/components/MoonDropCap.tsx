@@ -46,9 +46,8 @@ export default function MoonDropcap({
     let cancelled = false;
     async function loadApod() {
       try {
-        const res = await fetch(
-          `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&thumbs=true`
-        );
+        const res = await fetch("/api/nasa/apod"); // gleiche Origin → CSP-konform
+
         if (!res.ok) throw new Error(`NASA APOD ${res.status}`);
         const data: Apod = await res.json();
         if (!cancelled) setNasaApod(data);
