@@ -10,7 +10,7 @@ import MoonDropcap from './components/MoonDropCap'
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'Bruno Baumgartner – Moonclock',
+  title: 'Bruno Baumgartner – Autor',
   description:
     'Offizielle Seite von Bruno Baumgartner: Blog, Texte und Einblicke in Arbeit, Themen und Projekte. Schnell, zugänglich, fokussiert.',
   alternates: { canonical: '/' },
@@ -57,7 +57,7 @@ export default async function Home() {
       {/* ===== Hero / SEO-Intro ===== */}
       <section aria-labelledby="hero" style={{ display: 'grid', gap: '0.75rem' }}>
         <h1 id="hero" style={{ fontSize: '2rem', lineHeight: 1.2, margin: 0 }}>
-          <MoonDropcap text="Bruno Baumgartner – Autor" size="sm" />
+          <MoonDropcap text="Bruno Baumgartner – MoonClock" size="sm" />
         </h1>
         <p style={{ margin: 0, maxWidth: 820 }}>
           Willkommen auf <strong>brainbloom.ch</strong>, der offiziellen Website von{' '}
