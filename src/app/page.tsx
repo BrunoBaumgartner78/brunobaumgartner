@@ -10,7 +10,7 @@ import MoonDropcap from './components/MoonDropCap'
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'Bruno Baumgartner – Autor',
+  title: 'Bruno Baumgartner – Moonclock',
   description:
     'Offizielle Seite von Bruno Baumgartner: Blog, Texte und Einblicke in Arbeit, Themen und Projekte. Schnell, zugänglich, fokussiert.',
   alternates: { canonical: '/' },
