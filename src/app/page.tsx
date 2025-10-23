@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import { getRecentPosts, getGallery, getBooks } from '@/lib/queries'
 import { urlFor } from '@/lib/sanity.image'
 import BooksStrip from '@/app/components/BooksStrip'
+import MoonDropcap from './components/MoonDropCap'
 
 export const revalidate = 300
 
@@ -56,7 +57,7 @@ export default async function Home() {
       {/* ===== Hero / SEO-Intro ===== */}
       <section aria-labelledby="hero" style={{ display: 'grid', gap: '0.75rem' }}>
         <h1 id="hero" style={{ fontSize: '2rem', lineHeight: 1.2, margin: 0 }}>
-          Bruno Baumgartner – Autor
+          <MoonDropcap text="Bruno Baumgartner – Autor" size="sm" />
         </h1>
         <p style={{ margin: 0, maxWidth: 820 }}>
           Willkommen auf <strong>brainbloom.ch</strong>, der offiziellen Website von{' '}
