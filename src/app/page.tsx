@@ -57,7 +57,7 @@ export default async function Home() {
       {/* ===== Hero / SEO-Intro ===== */}
       <section aria-labelledby="hero" style={{ display: 'grid', gap: '0.75rem' }}>
         <h1 id="hero" style={{ fontSize: '2rem', lineHeight: 1.2, margin: 0 }}>
-          <MoonDropcap text="Bruno Baumgartner – Autor ( NASA - MoonClock)" size="sm" />
+          <MoonDropcap text="Bruno Baumgartner – Autor" size="sm" />
         </h1>
         <p style={{ margin: 0, maxWidth: 820 }}>
           Willkommen auf <strong>brainbloom.ch</strong>, der offiziellen Website von{' '}
