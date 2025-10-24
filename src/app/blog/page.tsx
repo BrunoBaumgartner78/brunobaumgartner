@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPostsPage } from '@/lib/queries'
 import { urlFor } from '@/lib/sanity.image'
+import { absUrl, SITE_TAGLINE } from '@/lib/seo' // ✅ SEO-Helper
 
 export const revalidate = 600
 
@@ -22,11 +23,42 @@ export async function generateMetadata(
   const page = parsePage(sp)
 
   const title = page > 1 ? `Blog – Seite ${page}` : 'Blog'
-  const canonical = page > 1 ? `/blog?page=${page}` : '/blog'
+  const canonicalPath = page > 1 ? `/blog?page=${page}` : '/blog'
+
+  const ogImageUrl = absUrl(
+    `/og?title=${encodeURIComponent(title)}&subtitle=${encodeURIComponent(SITE_TAGLINE)}`
+  )
+
+  const description =
+    'Aktuelle Beiträge, kurze Texte und Einblicke – schnell und zugänglich.'
 
   return {
     title,
-    alternates: { canonical },
+    description,
+    // 👉 relative Canonical; wird über metadataBase absolut gemacht
+    alternates: { canonical: canonicalPath },
+    // 👉 konsistente OG-URL + eigenes OG-Bild
+    openGraph: {
+      type: 'website',
+      url: absUrl(canonicalPath),
+      title,
+      description,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          type: 'image/png',
+          alt: 'Blog – Brainbloom',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImageUrl],
+    },
   }
 }
 

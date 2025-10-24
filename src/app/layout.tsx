@@ -71,9 +71,6 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
 
-  // ❌ NICHT hier setzen:
-  // other: { 'fb:app_id': '1322031815591336' },
-  // Das erzeugt <meta name="fb:app_id"> und wird vom Facebook Debugger ignoriert.
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
