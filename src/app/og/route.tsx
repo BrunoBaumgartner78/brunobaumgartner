@@ -8,7 +8,7 @@ const size = { width: 1200, height: 630 }
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
-  const title = searchParams.get('title') || 'Bruno Baumgartner – Autor'
+  const title = searchParams.get('title') || 'Bruno Baumgartner – Autor und Schizophrenie - Forscher'
   const subtitle =
     searchParams.get('subtitle') ||
     'Texte, Blog & Projekte. Minimal, schnell, zugänglich.'
