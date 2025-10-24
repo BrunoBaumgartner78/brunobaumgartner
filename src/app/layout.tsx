@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   type: 'website',
   siteName: 'Brainbloom',
   url: SITE_URL,
-  title: 'Bruno Baumgartner – Autor',
+  title: 'Bruno Baumgartner – Autor und Forscher',
   description: 'Texte, Blog und Einblicke …',
   images:  ['https://brainbloom.ch/og.png'], // 👈 dynamisch gerendertes PNG
   locale: 'de_CH',
