@@ -2,14 +2,14 @@
 import type { Metadata } from 'next'
 import { SITE_URL, absUrl, SITE_TAGLINE } from '@/lib/seo'
 import Header from './components/Header'
-import Footer from '@/app/components/Footer'
-import MetricsBeacon from './components/MeticsBeacon'
-import MobileTabbar from './components/MobileTabar' // ← prüfe Dateiname/Case
+import Footer from './components/Footer'
+import MetricsBeacon from '../app/components/MeticsBeacon'
+import MobileTabbar from '../app/components/MobileTabar'
 import './base.css'
-import { Oxanium }  from 'next/font/google'
 
 // Fonts (self-hosted) – setzen CSS-Variablen für base.css
 import { Inter, Oxanium } from 'next/font/google'
+
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
@@ -23,11 +23,10 @@ const oxanium = Oxanium({
   display: 'swap',
 })
 
-
 // Einheitliches OG-Bild (sandfarben) mit Tagline
 const DEFAULT_OG_URL = absUrl(
   `/og?title=${encodeURIComponent('Bruno Baumgartner – Autor')}` +
-  `&subtitle=${encodeURIComponent(SITE_TAGLINE)}`
+    `&subtitle=${encodeURIComponent(SITE_TAGLINE)}`
 )
 
 export const metadata: Metadata = {
@@ -44,7 +43,7 @@ export const metadata: Metadata = {
       'application/rss+xml': [{ url: '/feed.xml', title: 'Brainbloom RSS' }],
     },
   },
- openGraph: {
+  openGraph: {
     type: 'website',
     siteName: 'Brainbloom',
     url: new URL('/', SITE_URL).toString(),
@@ -52,7 +51,7 @@ export const metadata: Metadata = {
     description: 'Texte, Blog und Einblicke …',
     images: [
       {
-        url: new URL('/opengraph-image', SITE_URL).toString(), // absolut!
+        url: DEFAULT_OG_URL, // absolut!
         width: 1200,
         height: 630,
         type: 'image/png',
@@ -63,7 +62,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    images: [new URL('/opengraph-image', SITE_URL).toString()],
+    images: [DEFAULT_OG_URL],
   },
   robots: { index: true, follow: true },
 }
@@ -71,6 +70,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="de" className={`${inter.variable} ${oxanium.variable}`}>
+      <head>
+        <meta property="fb:app_id" content="1322031815591336" />
+        {/* optional: Admin-Fallback */}
+        {/* <meta property="fb:admins" content="DEINE_NUMMERISCHE_FB_USER_ID" /> */}
+      </head>
       <body>
         {/* Skip-Link für Screenreader / Tastatur */}
         <a
