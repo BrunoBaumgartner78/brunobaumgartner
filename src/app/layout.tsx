@@ -3,11 +3,11 @@ import type { Metadata } from 'next'
 import { SITE_URL, absUrl, SITE_TAGLINE } from '@/lib/seo'
 import Header from './components/Header'
 import Footer from './components/Footer'
-import MetricsBeacon from '../app/components/MeticsBeacon'
-import MobileTabbar from '../app/components/MobileTabar'
+import MetricsBeacon from './components/MetricsBeacon'   // ✅ korrekter Name/Path
+import MobileTabbar from './components/MobileTabbar'     // ✅ korrekter Name/Path
 import './base.css'
 
-// Fonts (self-hosted) – setzen CSS-Variablen für base.css
+// Fonts (setzen CSS-Variablen für base.css)
 import { Inter, Oxanium } from 'next/font/google'
 
 const inter = Inter({
@@ -23,7 +23,7 @@ const oxanium = Oxanium({
   display: 'swap',
 })
 
-// Einheitliches OG-Bild (sandfarben) mit Tagline
+// Einheitliches OG-Bild (sandfarben) via dynamischer /og-Route
 const DEFAULT_OG_URL = absUrl(
   `/og?title=${encodeURIComponent('Bruno Baumgartner – Autor')}` +
     `&subtitle=${encodeURIComponent(SITE_TAGLINE)}`
@@ -38,38 +38,43 @@ export const metadata: Metadata = {
   description:
     'Offizielle Seite von Bruno Baumgartner: Blog, Texte und Einblicke in Arbeit, Themen und Projekte.',
   alternates: {
-    canonical: '/',
+    canonical: '/', // wird mit metadataBase absolut gemacht
     types: {
       'application/rss+xml': [{ url: '/feed.xml', title: 'Brainbloom RSS' }],
     },
   },
- openGraph: {
-  type: 'website',
-  siteName: 'Brainbloom',
-  url: SITE_URL,
-  title: 'Bruno Baumgartner – Autor und Forscher',
-  description: 'Texte, Blog und Einblicke …',
-  images:  ['https://brainbloom.ch/og.png'], // 👈 dynamisch gerendertes PNG
-  locale: 'de_CH',
-},
-twitter: {
-  card: 'summary_large_image',
-  title: 'Bruno Baumgartner – Autor',
-  description: 'Texte, Blog und Einblicke …',
-  images: ['https://brainbloom.ch/og.png'], // 👈 dieselbe Route
-},
-
+  openGraph: {
+    type: 'website',
+    siteName: 'Brainbloom',
+    url: new URL('/', SITE_URL).toString(),
+    title: 'Bruno Baumgartner – Autor',
+    description: 'Texte, Blog und Einblicke …',
+    images: [
+      {
+        url: DEFAULT_OG_URL,
+        width: 1200,
+        height: 630,
+        type: 'image/png',
+        alt: 'Bruno Baumgartner – Autor',
+      },
+    ],
+    locale: 'de_CH',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Bruno Baumgartner – Autor',
+    description: 'Texte, Blog und Einblicke …',
+    images: [DEFAULT_OG_URL],
+  },
   robots: { index: true, follow: true },
+  other: {
+    'fb:app_id': '1322031815591336', // ✅ Facebook Debugger-Warnung gelöst
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="de" className={`${inter.variable} ${oxanium.variable}`}>
-      <head>
-        <meta property="fb:app_id" content="1322031815591336" />
-        {/* optional: Admin-Fallback */}
-        {/* <meta property="fb:admins" content="DEINE_NUMMERISCHE_FB_USER_ID" /> */}
-      </head>
       <body>
         {/* Skip-Link für Screenreader / Tastatur */}
         <a
