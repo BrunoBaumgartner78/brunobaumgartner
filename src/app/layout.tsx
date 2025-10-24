@@ -28,14 +28,14 @@ const oxanium = Oxanium({
 
 // Einheitliches OG-Bild (sandfarben) via dynamischer /og-Route
 const DEFAULT_OG_URL = absUrl(
-  `/og?title=${encodeURIComponent('Bruno Baumgartner – Autor und Schizophrenie Forscher')}` +
+  `/og?title=${encodeURIComponent('Bruno Baumgartner – Autor und Schizophrenie - Forscher')}` +
     `&subtitle=${encodeURIComponent(SITE_TAGLINE)}`
 )
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Bruno Baumgartner – Autor',
+    default: 'Bruno Baumgartner – Autor und Schizophrenie - Forscher',
     template: '%s | Bruno Baumgartner',
   },
   description:
