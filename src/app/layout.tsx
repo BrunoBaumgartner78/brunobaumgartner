@@ -49,14 +49,14 @@ export const metadata: Metadata = {
   url: SITE_URL,
   title: 'Bruno Baumgartner – Autor',
   description: 'Texte, Blog und Einblicke …',
-  images: [`${SITE_URL}/opengraph-image`], // 👈 dynamisch gerendertes PNG
+  images:  ['https://brainbloom.ch/og.png'], // 👈 dynamisch gerendertes PNG
   locale: 'de_CH',
 },
 twitter: {
   card: 'summary_large_image',
   title: 'Bruno Baumgartner – Autor',
   description: 'Texte, Blog und Einblicke …',
-  images: [`${SITE_URL}/opengraph-image`], // 👈 dieselbe Route
+  images: ['https://brainbloom.ch/og.png'], // 👈 dieselbe Route
 },
 
   robots: { index: true, follow: true },
