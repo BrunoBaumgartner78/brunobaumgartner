@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'Brainbloom',
     url: new URL('/', SITE_URL).toString(),
-    title: 'Bruno Baumgartner – Autor',
+    title: 'Bruno Baumgartner – Autor und Schizophrenie - Forscher',
     description: 'Texte, Blog und Einblicke …',
     images: [
       {
@@ -58,14 +58,14 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         type: 'image/png',
-        alt: 'Bruno Baumgartner – Autor',
+        alt: 'Bruno Baumgartner – Autor und Schizophrenie - Forscher',
       },
     ],
     locale: 'de_CH',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bruno Baumgartner – Autor',
+    title: 'Bruno Baumgartner – Autor und Schizophrenie - Forscher',
     description: 'Texte, Blog und Einblicke …',
     images: [DEFAULT_OG_URL],
   },
