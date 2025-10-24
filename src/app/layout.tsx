@@ -43,27 +43,22 @@ export const metadata: Metadata = {
       'application/rss+xml': [{ url: '/feed.xml', title: 'Brainbloom RSS' }],
     },
   },
-  openGraph: {
-    type: 'website',
-    siteName: 'Brainbloom',
-    url: new URL('/', SITE_URL).toString(),
-    title: 'Bruno Baumgartner – Autor',
-    description: 'Texte, Blog und Einblicke …',
-    images: [
-      {
-        url: DEFAULT_OG_URL, // absolut!
-        width: 1200,
-        height: 630,
-        type: 'image/png',
-        alt: 'Bruno Baumgartner – Autor',
-      },
-    ],
-    locale: 'de_CH',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    images: [DEFAULT_OG_URL],
-  },
+ openGraph: {
+  type: 'website',
+  siteName: 'Brainbloom',
+  url: SITE_URL,
+  title: 'Bruno Baumgartner – Autor',
+  description: 'Texte, Blog und Einblicke …',
+  images: [`${SITE_URL}/opengraph-image`], // 👈 dynamisch gerendertes PNG
+  locale: 'de_CH',
+},
+twitter: {
+  card: 'summary_large_image',
+  title: 'Bruno Baumgartner – Autor',
+  description: 'Texte, Blog und Einblicke …',
+  images: [`${SITE_URL}/opengraph-image`], // 👈 dieselbe Route
+},
+
   robots: { index: true, follow: true },
 }
 
