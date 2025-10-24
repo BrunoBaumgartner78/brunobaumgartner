@@ -1,10 +1,13 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next'
 import { SITE_URL, absUrl, SITE_TAGLINE } from '@/lib/seo'
-import Header from './components/Header'
-import Footer from './components/Footer'
-import MetricsBeacon from '../app/components/MeticsBeacon'   // ✅ korrekter Name/Path
-import MobileTabbar from '../app/components/MobileTabar'     // ✅ korrekter Name/Path
+
+// ✅ saubere, konsistente Pfade (achten auf Dateinamen & Groß/Kleinschreibung)
+import Header from '@/app/components/Header'
+import Footer from '@/app/components/Footer'
+import MetricsBeacon from '@/app/components/MetricsBeacon'
+import MobileTabbar from '@/app/components/MobileTabbar'
+
 import './base.css'
 
 // Fonts (setzen CSS-Variablen für base.css)
@@ -67,14 +70,19 @@ export const metadata: Metadata = {
     images: [DEFAULT_OG_URL],
   },
   robots: { index: true, follow: true },
-  other: {
-    'fb:app_id': '1322031815591336', // ✅ Facebook Debugger-Warnung gelöst
-  },
+
+  // ❌ NICHT hier setzen:
+  // other: { 'fb:app_id': '1322031815591336' },
+  // Das erzeugt <meta name="fb:app_id"> und wird vom Facebook Debugger ignoriert.
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="de" className={`${inter.variable} ${oxanium.variable}`}>
+      <head>
+        {/* ✅ Korrekt für Facebook: property, nicht name */}
+        <meta property="fb:app_id" content="1322031815591336" />
+      </head>
       <body>
         {/* Skip-Link für Screenreader / Tastatur */}
         <a
