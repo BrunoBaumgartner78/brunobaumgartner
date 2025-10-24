@@ -28,7 +28,7 @@ const oxanium = Oxanium({
 
 // Einheitliches OG-Bild (sandfarben) via dynamischer /og-Route
 const DEFAULT_OG_URL = absUrl(
-  `/og?title=${encodeURIComponent('Bruno Baumgartner – Autor')}` +
+  `/og?title=${encodeURIComponent('Bruno Baumgartner – Autor und Schizophrenie Forscher')}` +
     `&subtitle=${encodeURIComponent(SITE_TAGLINE)}`
 )
 
