@@ -5,8 +5,8 @@ import { SITE_URL, absUrl, SITE_TAGLINE } from '@/lib/seo'
 // ✅ saubere, konsistente Pfade (achten auf Dateinamen & Groß/Kleinschreibung)
 import Header from '@/app/components/Header'
 import Footer from '@/app/components/Footer'
-import MetricsBeacon from '@/app/components/MetricsBeacon'
-import MobileTabbar from '@/app/components/MobileTabbar'
+import MetricsBeacon from '@/app/components/MeticsBeacon'
+import MobileTabbar from '@/app/components/MobileTabar'
 
 import './base.css'
 
