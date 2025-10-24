@@ -3,8 +3,8 @@ import type { Metadata } from 'next'
 import { SITE_URL, absUrl, SITE_TAGLINE } from '@/lib/seo'
 import Header from './components/Header'
 import Footer from './components/Footer'
-import MetricsBeacon from './components/MetricsBeacon'   // ✅ korrekter Name/Path
-import MobileTabbar from './components/MobileTabbar'     // ✅ korrekter Name/Path
+import MetricsBeacon from '../app/components/MeticsBeacon'   // ✅ korrekter Name/Path
+import MobileTabbar from '../app/components/MobileTabar'     // ✅ korrekter Name/Path
 import './base.css'
 
 // Fonts (setzen CSS-Variablen für base.css)
